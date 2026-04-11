@@ -18,6 +18,8 @@ struct TunerView: View {
 
     // MARK: - Ephemeral state
 
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
     @StateObject private var audioPlayer = ReferenceAudioPlayer()
     @State private var showingSettings = false
     @State private var strobeOn: Bool = false
@@ -115,20 +117,20 @@ struct TunerView: View {
                 }
 
                 readoutArea
-                    .padding(.top, 10)
+                    .padding(.top, verticalSizeClass == .compact ? 4 : 10)
 
                 tuningMeter
-                    .padding(.vertical, 10)
+                    .padding(.vertical, verticalSizeClass == .compact ? 4 : 10)
 
                 if instrument == .chromatic {
                     pianoKeyboard
-                        .frame(height: 90)
+                        .frame(height: verticalSizeClass == .compact ? 60 : 90)
                         .padding(.horizontal, 16)
                 }
 
                 quickSettingsBar
-                    .padding(.top, 8)
-                    .padding(.bottom, 12)
+                    .padding(.top, verticalSizeClass == .compact ? 4 : 8)
+                    .padding(.bottom, verticalSizeClass == .compact ? 6 : 12)
             }
             .frame(maxWidth: .infinity)
         }
@@ -255,34 +257,50 @@ struct TunerView: View {
     // MARK: - Readout
 
     private var readoutArea: some View {
-        VStack(spacing: 4) {
-            if let r = reading {
-                let cents = displayCents
-                Text("\(r.note)\(r.octave)")
-                    .font(.system(size: 52, weight: .bold, design: .monospaced))
-                    .foregroundStyle(noteColor(cents: cents))
-                Text("\(r.frequency, format: .number.precision(.fractionLength(1))) Hz")
-                    .font(.system(size: 14, weight: .regular, design: .monospaced))
-                    .foregroundStyle(Color.white.opacity(0.6))
-                if abs(cents) <= 5 {
-                    Text(langManager.l10n.tunerInTune)
-                        .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(Color.green)
+        // Always render exactly 3 rows with the SAME font weight so row heights
+        // never change when a pitch is detected or lost.  The fixed frame is a
+        // second guard: even if text metrics wobble, the piano below stays put.
+        let cents  = displayCents
+        let isLandscape = verticalSizeClass == .compact
+        let noteFontSize: CGFloat = isLandscape ? 38 : 52
+        let fixedHeight: CGFloat  = isLandscape ? 72  : 108
+
+        return VStack(spacing: 4) {
+            // Row 1 — note name  (always .bold so line-height never changes)
+            Text(reading.map { "\($0.note)\($0.octave)" } ?? "–")
+                .font(.system(size: noteFontSize, weight: .bold, design: .monospaced))
+                .foregroundStyle(reading != nil
+                    ? noteColor(cents: cents)
+                    : Color.white.opacity(0.15))
+
+            // Row 2 — frequency / listening label
+            Text(reading.map { String(format: "%.1f Hz", $0.frequency) }
+                 ?? langManager.l10n.tunerListening)
+                .font(.system(size: 14, weight: .regular, design: .monospaced))
+                .foregroundStyle(Color.white.opacity(0.6))
+
+            // Row 3 — cents / in-tune badge.
+            // When no reading: render an invisible same-font placeholder so this
+            // row always occupies exactly the same height as the visible variants.
+            Group {
+                if reading != nil {
+                    if abs(cents) <= 5 {
+                        Text(langManager.l10n.tunerInTune)
+                            .foregroundStyle(Color.green)
+                            .fontWeight(.semibold)
+                    } else {
+                        Text(centsLabel(cents))
+                            .foregroundStyle(noteColor(cents: cents).opacity(0.9))
+                            .fontWeight(.medium)
+                    }
                 } else {
-                    Text(centsLabel(cents))
-                        .font(.system(size: 13, weight: .medium, design: .monospaced))
-                        .foregroundStyle(noteColor(cents: cents).opacity(0.9))
+                    Text(verbatim: "+00 \(langManager.l10n.tunerCents)")
+                        .foregroundStyle(Color.clear)   // invisible, same width/height
                 }
-            } else {
-                Text("–")
-                    .font(.system(size: 52, weight: .thin, design: .monospaced))
-                    .foregroundStyle(Color.white.opacity(0.2))
-                Text(langManager.l10n.tunerListening)
-                    .font(.system(size: 13, design: .monospaced))
-                    .foregroundStyle(Color.white.opacity(0.3))
             }
+            .font(.system(size: 13, design: .monospaced))
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, minHeight: fixedHeight, maxHeight: fixedHeight)
     }
 
     // MARK: - Tuning Meter
