@@ -37,7 +37,7 @@ final class SpectrumViewModel: ObservableObject {
     var noiseGateDB: Float = -50.0
 
     private var audioEngine = AudioEngine()
-    private let fftProcessor = FFTProcessor()
+    private var fftProcessor = FFTProcessor()
     private let peakDetector = PeakDetector()
     private var volumeObserver: NSKeyValueObservation?
 
@@ -55,6 +55,11 @@ final class SpectrumViewModel: ObservableObject {
         Task {
             do {
                 try await audioEngine.start()
+                // Reinitialize with the actual hardware sample rate (44100 on Mac/sim, 48000 on iPhone).
+                let actualRate = Float(audioEngine.sampleRate)
+                if actualRate != fftProcessor.sampleRate {
+                    fftProcessor = FFTProcessor(fftSize: fftProcessor.fftSize, sampleRate: actualRate)
+                }
                 startVolumeObservation()
                 for await samples in audioEngine.sampleStream {
                     // Apply software gain for sensitivity control

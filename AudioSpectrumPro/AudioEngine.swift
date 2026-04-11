@@ -48,6 +48,11 @@ final class AudioEngine {
         try engine.start()
     }
 
+    /// The actual hardware sample rate — available after `start()` returns.
+    var sampleRate: Double {
+        engine.inputNode.outputFormat(forBus: 0).sampleRate
+    }
+
     func stop() {
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
