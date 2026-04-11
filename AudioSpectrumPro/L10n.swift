@@ -32,6 +32,17 @@ struct L10n {
     let tunerInTune:        String
     let tunerCustom:        String
 
+    // MARK: - Instrument names (tuner selector)
+    let instrChromatic:     String
+    let instrGuitar:        String
+    let instrBass:          String
+    let instrViolin:        String
+    let instrViola:         String
+    let instrCello:         String
+    let instrUkulele:       String
+    let instrMandolin:      String
+    let instrBanjo:         String
+
     // MARK: - Loudness
     let loudnessRMS:        String
     let loudnessPeak:       String
@@ -88,6 +99,15 @@ struct L10n {
         tunerNoiseGate:     "Min. Signal",
         tunerInTune:        "In Tune ✓",
         tunerCustom:        "Custom",
+        instrChromatic:     "Chromatic",
+        instrGuitar:        "Guitar",
+        instrBass:          "Bass",
+        instrViolin:        "Violin",
+        instrViola:         "Viola",
+        instrCello:         "Cello",
+        instrUkulele:       "Ukulele",
+        instrMandolin:      "Mandolin",
+        instrBanjo:         "Banjo",
         loudnessRMS:        "RMS",
         loudnessPeak:       "Peak",
         loudnessHistory:    "History",
@@ -128,6 +148,15 @@ struct L10n {
         tunerNoiseGate:     "Мин. сигнал",
         tunerInTune:        "В строе ✓",
         tunerCustom:        "Своё",
+        instrChromatic:     "Хроматик",
+        instrGuitar:        "Гитара",
+        instrBass:          "Бас",
+        instrViolin:        "Скрипка",
+        instrViola:         "Альт",
+        instrCello:         "Виолончель",
+        instrUkulele:       "Укулеле",
+        instrMandolin:      "Мандолина",
+        instrBanjo:         "Банджо",
         loudnessRMS:        "RMS",
         loudnessPeak:       "Пик",
         loudnessHistory:    "История",
@@ -168,6 +197,15 @@ struct L10n {
         tunerNoiseGate:     "Мін. сигнал",
         tunerInTune:        "В строї ✓",
         tunerCustom:        "Своє",
+        instrChromatic:     "Хроматик",
+        instrGuitar:        "Гітара",
+        instrBass:          "Бас",
+        instrViolin:        "Скрипка",
+        instrViola:         "Альт",
+        instrCello:         "Віолончель",
+        instrUkulele:       "Укулеле",
+        instrMandolin:      "Мандоліна",
+        instrBanjo:         "Банджо",
         loudnessRMS:        "RMS",
         loudnessPeak:       "Пік",
         loudnessHistory:    "Історія",

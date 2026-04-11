@@ -38,6 +38,7 @@ enum TunerInstrument: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// English fallback — used only where no `L10n` is available.
     var displayName: String {
         switch self {
         case .chromatic: return "Chromatic"
@@ -49,6 +50,21 @@ enum TunerInstrument: String, CaseIterable, Identifiable {
         case .ukulele:   return "Ukulele"
         case .mandolin:  return "Mandolin"
         case .banjo:     return "Banjo"
+        }
+    }
+
+    /// Localized display name — use this in views that have `L10n`.
+    func displayName(l10n: L10n) -> String {
+        switch self {
+        case .chromatic: return l10n.instrChromatic
+        case .guitar:    return l10n.instrGuitar
+        case .bass:      return l10n.instrBass
+        case .violin:    return l10n.instrViolin
+        case .viola:     return l10n.instrViola
+        case .cello:     return l10n.instrCello
+        case .ukulele:   return l10n.instrUkulele
+        case .mandolin:  return l10n.instrMandolin
+        case .banjo:     return l10n.instrBanjo
         }
     }
 

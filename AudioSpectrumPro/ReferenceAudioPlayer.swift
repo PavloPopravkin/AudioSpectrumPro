@@ -7,9 +7,12 @@ import AVFoundation
 final class ReferenceAudioPlayer: ObservableObject {
     @Published private(set) var playingFrequency: Float? = nil
 
-    private let engine    = AVAudioEngine()
-    private let playerNode = AVAudioPlayerNode()
+    private let engine      = AVAudioEngine()
+    private let playerNode  = AVAudioPlayerNode()
     private let sampleRate: Double = 44100
+    /// Incremented on every new play() call so stale completion handlers
+    /// from a previous buffer don't clear the current frequency.
+    private var generation: Int = 0
 
     init() {
         engine.attach(playerNode)
@@ -33,7 +36,9 @@ final class ReferenceAudioPlayer: ObservableObject {
         let totalDur = Float(duration)
 
         // ADSR parameters
-        let attack:  Float = 0.015
+        // attack = 25 ms: long enough to eliminate the onset click on desktop
+        // speakers while still feeling instantaneous to the player.
+        let attack:  Float = 0.025
         let decay:   Float = 0.06
         let sustain: Float = 0.65
         let release: Float = 0.6
@@ -57,10 +62,13 @@ final class ReferenceAudioPlayer: ObservableObject {
             data[i] = sinf(twoPiF * t) * env * 0.45
         }
 
+        generation += 1
+        let myGeneration = generation
         playingFrequency = frequency
         playerNode.scheduleBuffer(buffer, at: nil, options: [], completionHandler: { [weak self] in
             Task { @MainActor [weak self] in
-                self?.playingFrequency = nil
+                guard let self, self.generation == myGeneration else { return }
+                self.playingFrequency = nil
             }
         })
         playerNode.play()
@@ -68,7 +76,9 @@ final class ReferenceAudioPlayer: ObservableObject {
 
     func stop() {
         playerNode.stop()
-        playerNode.reset()
+        // Omit playerNode.reset() — it flushes the hardware ring buffer
+        // which produces an audible pop, especially on Mac speakers.
+        // playerNode.stop() already dequeues pending buffers.
         playingFrequency = nil
     }
 }

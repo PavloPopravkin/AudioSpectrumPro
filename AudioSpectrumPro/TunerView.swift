@@ -22,11 +22,19 @@ struct TunerView: View {
     @State private var showingSettings = false
     @State private var strobeOn: Bool = false
 
-    // MARK: - Piano keyboard data
+    // MARK: - Piano keyboard data (two octaves: C3–B4)
 
     private let allNotes = TunerReading.noteNames
-    private let whiteIndices = [0, 2, 4, 5, 7, 9, 11]
-    private let blackIndices = [1, 3, 6, 8, 10]
+    // (semitone 0–11, octave): 14 white keys C3→B3→C4→B4
+    private let whiteKeyData: [(noteIndex: Int, octave: Int)] = [
+        (0,3),(2,3),(4,3),(5,3),(7,3),(9,3),(11,3),
+        (0,4),(2,4),(4,4),(5,4),(7,4),(9,4),(11,4)
+    ]
+    // (semitone, octave, left-edge as multiple of white-key width)
+    private let blackKeyData: [(noteIndex: Int, octave: Int, xMult: CGFloat)] = [
+        (1,3,0.7),(3,3,1.7),(6,3,3.7),(8,3,4.7),(10,3,5.7),
+        (1,4,7.7),(3,4,8.7),(6,4,10.7),(8,4,11.7),(10,4,12.7)
+    ]
 
     // MARK: - Derived helpers
 
@@ -91,38 +99,43 @@ struct TunerView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 0) {
-            instrumentSelector
-                .padding(.top, 12)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                instrumentSelector
+                    .padding(.top, 12)
 
-            if instrument != .chromatic && instrument.tunings.count > 1 {
-                tuningSelector
-                    .padding(.top, 8)
-            }
+                if instrument != .chromatic && instrument.tunings.count > 1 {
+                    tuningSelector
+                        .padding(.top, 8)
+                }
 
-            if instrument != .chromatic {
-                stringIndicators
+                if instrument != .chromatic {
+                    stringIndicators
+                        .padding(.top, 10)
+                }
+
+                readoutArea
                     .padding(.top, 10)
+
+                tuningMeter
+                    .padding(.vertical, 10)
+
+                if instrument == .chromatic {
+                    pianoKeyboard
+                        .frame(height: 90)
+                        .padding(.horizontal, 16)
+                }
+
+                quickSettingsBar
+                    .padding(.top, 8)
+                    .padding(.bottom, 12)
             }
-
-            readoutArea
-                .padding(.top, 10)
-
-            Spacer(minLength: 6)
-            tuningMeter
-            Spacer(minLength: 10)
-
-            pianoKeyboard
-                .frame(height: 90)
-                .padding(.horizontal, 16)
-
-            quickSettingsBar
-                .padding(.top, 8)
-                .padding(.bottom, 12)
+            .frame(maxWidth: .infinity)
         }
         .background(Color.black)
         .sheet(isPresented: $showingSettings) {
-            settingsSheet
+            TunerSettingsView()
+                .environmentObject(langManager)
         }
         .onChange(of: referenceA4Storage) { _ in syncViewModel() }
         .onChange(of: noiseGateDB) { _ in syncViewModel() }
@@ -149,7 +162,7 @@ struct TunerView: View {
                         VStack(spacing: 3) {
                             Image(systemName: inst.systemImage)
                                 .font(.system(size: 14))
-                            Text(inst.displayName)
+                            Text(inst.displayName(l10n: langManager.l10n))
                                 .font(.system(size: 11, weight: .medium))
                         }
                         .foregroundStyle(instrument == inst ? Color.black : Color.white.opacity(0.7))
@@ -192,18 +205,20 @@ struct TunerView: View {
 
     private var stringIndicators: some View {
         let strings = currentTuning?.strings ?? []
-        let nearest = nearestStringResult?.string
+        // Don't highlight the nearest-string pill while a reference tone plays
+        let nearest: InstrumentString? = audioPlayer.playingFrequency == nil ? nearestStringResult?.string : nil
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
                 ForEach(strings) { str in
                     let isNearest = nearest?.id == str.id
+                    let playFreq = stringFrequency(str)
                     let isPlaying = audioPlayer.playingFrequency.map {
-                        abs($0 - stringFrequency(str)) < 1.0
+                        abs($0 - playFreq) < 2.0
                     } ?? false
                     let color: Color = isPlaying
                         ? .cyan
                         : isNearest ? pillColor(centsOff: nearestStringResult?.centsOff ?? 0) : Color.white.opacity(0.15)
-                    Button(action: { audioPlayer.play(frequency: stringFrequency(str)) }) {
+                    Button(action: { audioPlayer.play(frequency: playFreq) }) {
                         HStack(spacing: 4) {
                             Text(str.name)
                                 .font(.system(size: 13, weight: .semibold, design: .monospaced))
@@ -318,65 +333,74 @@ struct TunerView: View {
 
     // MARK: - Piano Keyboard
 
-    // Returns frequency for a semitone offset from C in octave 4 (C4 = MIDI 60)
-    private func pianoKeyFrequency(noteIndex: Int) -> Float {
-        let midi = 60 + noteIndex   // C4 = 60, A4 = 69
+    /// Frequency for a note at (semitone 0–11, octave): C4=MIDI60, A4=MIDI69.
+    private func pianoKeyFrequency(noteIndex: Int, octave: Int) -> Float {
+        let midi = 12 * (octave + 1) + noteIndex
         return referenceA4 * pow(2.0, Float(midi - 69) / 12.0)
     }
 
     private var pianoKeyboard: some View {
         GeometryReader { geo in
-            let whiteCount = 7
-            let whiteW = geo.size.width / CGFloat(whiteCount)
-            let whiteH = geo.size.height
-            let blackW = whiteW * 0.6
-            let blackH = whiteH * 0.62
-            let activeNote = reading?.note
-            let blackPositions: [CGFloat] = [
-                whiteW * 0.7, whiteW * 1.7, whiteW * 3.7, whiteW * 4.7, whiteW * 5.7
-            ]
+            let totalW  = geo.size.width
+            let whiteN  = whiteKeyData.count     // 14
+            let ww      = totalW / CGFloat(whiteN)
+            let whiteH  = geo.size.height
+            let blackW  = ww * 0.58
+            let blackH  = whiteH * 0.62
+            // Suppress mic highlight while a reference tone plays (avoids two lit keys).
+            let activeNote:   String? = audioPlayer.playingFrequency == nil ? reading?.note   : nil
+            let activeOctave: Int?    = audioPlayer.playingFrequency == nil ? reading?.octave : nil
 
             ZStack(alignment: .topLeading) {
-                // White keys
-                ForEach(0..<7, id: \.self) { i in
-                    let noteIndex = whiteIndices[i]
-                    let noteName = allNotes[noteIndex]
-                    let isActive = activeNote == noteName
-                    let isPlaying = audioPlayer.playingFrequency.map {
-                        abs($0 - pianoKeyFrequency(noteIndex: noteIndex)) < 2.0
-                    } ?? false
-                    let fillColor: Color = isPlaying ? .cyan : isActive ? noteColor(cents: displayCents) : .white
+                // ── White keys ──────────────────────────────────────────────
+                // HStack gives correct layout-based tap targets (ZStack+offset
+                // would leave hit-test rects at the original position).
+                HStack(spacing: 0) {
+                    ForEach(0..<whiteN, id: \.self) { i in
+                        let ni     = whiteKeyData[i].noteIndex
+                        let oct    = whiteKeyData[i].octave
+                        let name   = allNotes[ni]
+                        let isActive  = activeNote == name && activeOctave == oct
+                        let freq      = pianoKeyFrequency(noteIndex: ni, octave: oct)
+                        let isPlaying = audioPlayer.playingFrequency.map { abs($0 - freq) < 2.0 } ?? false
+                        let fill: Color = isPlaying ? .cyan
+                            : isActive  ? noteColor(cents: displayCents)
+                            : .white
 
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(fillColor)
-                        .overlay(RoundedRectangle(cornerRadius: 3).stroke(Color.black.opacity(0.4), lineWidth: 1))
-                        .frame(width: whiteW - 2, height: whiteH)
-                        .offset(x: CGFloat(i) * whiteW + 1)
-                        .animation(.easeInOut(duration: 0.1), value: isActive || isPlaying)
-                        .onTapGesture {
-                            audioPlayer.play(frequency: pianoKeyFrequency(noteIndex: noteIndex))
-                        }
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(fill)
+                            .overlay(RoundedRectangle(cornerRadius: 2)
+                                .stroke(Color.black.opacity(0.35), lineWidth: 0.5))
+                            .contentShape(Rectangle())
+                            .animation(.easeInOut(duration: 0.1), value: isPlaying || isActive)
+                            .onTapGesture { audioPlayer.play(frequency: freq) }
+                    }
                 }
+                .frame(width: totalW, height: whiteH)
 
-                // Black keys (drawn on top)
-                ForEach(0..<5, id: \.self) { i in
-                    let noteIndex = blackIndices[i]
-                    let noteName = allNotes[noteIndex]
-                    let isActive = activeNote == noteName
-                    let isPlaying = audioPlayer.playingFrequency.map {
-                        abs($0 - pianoKeyFrequency(noteIndex: noteIndex)) < 2.0
-                    } ?? false
-                    let fillColor: Color = isPlaying ? .cyan : isActive ? noteColor(cents: displayCents) : .black
+                // ── Black keys ───────────────────────────────────────────────
+                // .position(x:y:) sets the CENTER in parent coords — both visual
+                // and hit-test area land in the right place (unlike .offset()).
+                ForEach(0..<blackKeyData.count, id: \.self) { i in
+                    let ni     = blackKeyData[i].noteIndex
+                    let oct    = blackKeyData[i].octave
+                    let xMult  = blackKeyData[i].xMult
+                    let name   = allNotes[ni]
+                    let isActive  = activeNote == name && activeOctave == oct
+                    let freq      = pianoKeyFrequency(noteIndex: ni, octave: oct)
+                    let isPlaying = audioPlayer.playingFrequency.map { abs($0 - freq) < 2.0 } ?? false
+                    let fill: Color = isPlaying ? .cyan
+                        : isActive  ? noteColor(cents: displayCents)
+                        : .black
 
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(fillColor)
-                        .overlay(RoundedRectangle(cornerRadius: 2).stroke(Color.white.opacity(0.15), lineWidth: 0.5))
+                        .fill(fill)
+                        .overlay(RoundedRectangle(cornerRadius: 2)
+                            .stroke(Color.white.opacity(0.12), lineWidth: 0.5))
                         .frame(width: blackW, height: blackH)
-                        .offset(x: blackPositions[i])
-                        .animation(.easeInOut(duration: 0.1), value: isActive || isPlaying)
-                        .onTapGesture {
-                            audioPlayer.play(frequency: pianoKeyFrequency(noteIndex: noteIndex))
-                        }
+                        .position(x: xMult * ww + blackW / 2, y: blackH / 2)
+                        .animation(.easeInOut(duration: 0.1), value: isPlaying || isActive)
+                        .onTapGesture { audioPlayer.play(frequency: freq) }
                 }
             }
         }
@@ -443,20 +467,52 @@ struct TunerView: View {
         .padding(.horizontal, 16)
     }
 
-    // MARK: - Settings Sheet
+    // MARK: - Helpers
 
-    private var settingsSheet: some View {
+    private func noteColor(cents: Int) -> Color {
+        let a = abs(cents)
+        if a <= 10 { return .green }   // ≤10 cents = in tune (visible green zone)
+        if a <= 25 { return .yellow }
+        return .red
+    }
+
+    private func centsLabel(_ cents: Int) -> String {
+        let sign = cents > 0 ? "+" : ""
+        return "\(sign)\(cents) \(langManager.l10n.tunerCents)"
+    }
+}
+
+// MARK: - Tuner Settings Sheet
+// Extracted into its own struct so SwiftUI manages its own state independently.
+// A computed `var` on the parent view doesn't re-render the already-presented
+// sheet when AppStorage changes, causing sliders to appear frozen.
+
+struct TunerSettingsView: View {
+    @AppStorage("tuner_reference_a4") private var referenceA4: Double = 440.0
+    @AppStorage("tuner_capo")         private var capo: Int = 0
+    @AppStorage("tuner_noise_gate")   private var noiseGateDB: Double = -50.0
+    @AppStorage("tuner_instrument")   private var instrumentRaw: String = TunerInstrument.chromatic.rawValue
+
+    @EnvironmentObject private var langManager: LanguageManager
+    @Environment(\.dismiss) private var dismiss
+
+    private let presets: [Int] = [432, 438, 440, 441, 442, 443, 444]
+
+    private var supportsCapo: Bool {
+        let inst = TunerInstrument(rawValue: instrumentRaw) ?? .chromatic
+        return inst == .guitar || inst == .bass
+    }
+
+    var body: some View {
         NavigationView {
             Form {
-                // Section 1: Reference pitch
+                // ── Reference pitch ──────────────────────────────────────
                 Section(header: Text(langManager.l10n.tunerReferencePitch)) {
-                    // Preset buttons
-                    let presets: [Int] = [432, 438, 440, 441, 442, 443, 444]
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(presets, id: \.self) { preset in
-                                let isSelected = Int(referenceA4Storage) == preset
-                                Button(action: { referenceA4Storage = Double(preset) }) {
+                                let isSelected = Int(referenceA4) == preset
+                                Button(action: { referenceA4 = Double(preset) }) {
                                     Text("\(preset)")
                                         .font(.system(size: 13, weight: .semibold))
                                         .foregroundStyle(isSelected ? Color.black : Color.primary)
@@ -475,32 +531,30 @@ struct TunerView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
-                            Text(langManager.l10n.tunerCustom)
-                                .font(.callout)
+                            Text(langManager.l10n.tunerCustom).font(.callout)
                             Spacer()
-                            Text("\(referenceA4Storage, specifier: "%.1f") Hz")
+                            Text("\(Int(referenceA4)) Hz")
                                 .font(.system(.callout, design: .monospaced))
                                 .foregroundStyle(Color.secondary)
                         }
-                        Slider(value: $referenceA4Storage, in: 430...450, step: 1)
+                        Slider(value: $referenceA4, in: 430...450, step: 1)
                     }
                 }
 
-                // Section 2: Capo (guitar/bass only)
+                // ── Capo (guitar / bass only) ────────────────────────────
                 if supportsCapo {
                     Section(header: Text(langManager.l10n.tunerCapo)) {
                         Stepper("\(langManager.l10n.tunerCapo): \(capo)", value: $capo, in: 0...7)
                     }
                 }
 
-                // Section 3: Noise gate
+                // ── Noise gate ───────────────────────────────────────────
                 Section(header: Text(langManager.l10n.tunerNoiseGate)) {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
-                            Text(langManager.l10n.tunerNoiseGate)
-                                .font(.callout)
+                            Text(langManager.l10n.tunerNoiseGate).font(.callout)
                             Spacer()
-                            Text("\(noiseGateDB, specifier: "%.0f") dB")
+                            Text("\(Int(noiseGateDB)) dB")
                                 .font(.system(.callout, design: .monospaced))
                                 .foregroundStyle(Color.secondary)
                         }
@@ -512,25 +566,10 @@ struct TunerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(langManager.l10n.errorOK) {
-                        showingSettings = false
-                    }
+                    Button(langManager.l10n.errorOK) { dismiss() }
                 }
             }
         }
-    }
-
-    // MARK: - Helpers
-
-    private func noteColor(cents: Int) -> Color {
-        let a = abs(cents)
-        if a <= 5  { return .green }
-        if a <= 15 { return .yellow }
-        return .red
-    }
-
-    private func centsLabel(_ cents: Int) -> String {
-        let sign = cents > 0 ? "+" : ""
-        return "\(sign)\(cents) \(langManager.l10n.tunerCents)"
+        .preferredColorScheme(.dark)
     }
 }
