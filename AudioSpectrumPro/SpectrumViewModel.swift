@@ -4,6 +4,7 @@
 
 import Combine
 import SwiftUI
+import AVFoundation
 
 @MainActor
 final class SpectrumViewModel: ObservableObject {
@@ -21,6 +22,8 @@ final class SpectrumViewModel: ObservableObject {
     @Published var rmsDB: Float = FFTProcessor.minDB
     @Published var truePeakDB: Float = FFTProcessor.minDB
     @Published var loudnessHistory: [Float] = []
+    // Sensitivity / gain (1.0 = normal, >1 amplifies, <1 attenuates)
+    @Published var sensitivity: Float = 1.0
     // State
     @Published var isRunning = false
     @Published var errorMessage: String?
@@ -36,6 +39,7 @@ final class SpectrumViewModel: ObservableObject {
     private var audioEngine = AudioEngine()
     private let fftProcessor = FFTProcessor()
     private let peakDetector = PeakDetector()
+    private var volumeObserver: NSKeyValueObservation?
 
     // Exponential moving average smoothing (alpha: 0 = no update, 1 = no smoothing)
     private let smoothingAlpha: Float = 0.3
@@ -51,8 +55,13 @@ final class SpectrumViewModel: ObservableObject {
         Task {
             do {
                 try await audioEngine.start()
+                startVolumeObservation()
                 for await samples in audioEngine.sampleStream {
-                    let rawFFT = fftProcessor.process(samples)
+                    // Apply software gain for sensitivity control
+                    let gainedSamples: [Float] = sensitivity == 1.0
+                        ? samples
+                        : samples.map { $0 * sensitivity }
+                    let rawFFT = fftProcessor.process(gainedSamples)
                     let logScaled = fftProcessor.mapToLogScale(rawFFT)
                     smooth(logScaled)
 
@@ -74,14 +83,14 @@ final class SpectrumViewModel: ObservableObject {
                     waterfallRows = newRows
 
                     // Oscilloscope
-                    rawSamples = samples
+                    rawSamples = gainedSamples
 
                     // Tuner
                     tunerReading = fftProcessor.detectPitch(rawFFT, referenceA4: referenceA4, noiseGateDB: noiseGateDB)
 
                     // Loudness
-                    let rms = fftProcessor.rmsDB(samples)
-                    let peak = fftProcessor.truePeakDB(samples)
+                    let rms = fftProcessor.rmsDB(gainedSamples)
+                    let peak = fftProcessor.truePeakDB(gainedSamples)
                     rmsDB = rms
                     truePeakDB = max(truePeakDB * 0.999, peak)   // slow decay for true peak hold
                     var newHistory = loudnessHistory
@@ -98,7 +107,33 @@ final class SpectrumViewModel: ObservableObject {
 
     func stop() {
         audioEngine.stop()
+        stopVolumeObservation()
         isRunning = false
+    }
+
+    // MARK: - Volume-button sensitivity
+
+    private func startVolumeObservation() {
+        // KVO on outputVolume — fires when the hardware volume buttons are pressed.
+        // Each press changes volume by ~0.0625; we map that delta to sensitivity instead.
+        volumeObserver = AVAudioSession.sharedInstance()
+            .observe(\.outputVolume, options: [.old, .new]) { [weak self] _, change in
+                guard let self = self,
+                      let oldVol = change.oldValue,
+                      let newVol = change.newValue else { return }
+                let delta = newVol - oldVol
+                guard abs(delta) > 0.001 else { return }
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
+                    let updated = self.sensitivity + delta * 3.0
+                    self.sensitivity = max(0.1, min(8.0, updated))
+                }
+            }
+    }
+
+    private func stopVolumeObservation() {
+        volumeObserver?.invalidate()
+        volumeObserver = nil
     }
 
     // MARK: - Private

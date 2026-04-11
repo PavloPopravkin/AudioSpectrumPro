@@ -31,6 +31,7 @@
 		ED50283E2F8AD17C00A843D9 /* OscilloscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5028392F8AD17C00A843D9 /* OscilloscopeView.swift */; };
 		ED50283F2F8AD17C00A843D9 /* LoudnessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED50283A2F8AD17C00A843D9 /* LoudnessView.swift */; };
 		ED5028412F8AD35B00A843D9 /* TunerInstrument.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5028402F8AD35B00A843D9 /* TunerInstrument.swift */; };
+		ED5028432F8AD35B00A843D9 /* ReferenceAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5028422F8AD35B00A843D9 /* ReferenceAudioPlayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +81,7 @@
 		ED5028392F8AD17C00A843D9 /* OscilloscopeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OscilloscopeView.swift; sourceTree = "<group>"; };
 		ED50283A2F8AD17C00A843D9 /* LoudnessView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoudnessView.swift; sourceTree = "<group>"; };
 		ED5028402F8AD35B00A843D9 /* TunerInstrument.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunerInstrument.swift; sourceTree = "<group>"; };
+		ED5028422F8AD35B00A843D9 /* ReferenceAudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceAudioPlayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +139,7 @@
 				ED5028382F8AD17C00A843D9 /* DisplayMode.swift */,
 				ED50283A2F8AD17C00A843D9 /* LoudnessView.swift */,
 				ED5028402F8AD35B00A843D9 /* TunerInstrument.swift */,
+				ED5028422F8AD35B00A843D9 /* ReferenceAudioPlayer.swift */,
 				ED5028392F8AD17C00A843D9 /* OscilloscopeView.swift */,
 				ED5028372F8AD17C00A843D9 /* SpectrographView.swift */,
 				ED5028362F8AD17C00A843D9 /* TunerView.swift */,
@@ -317,6 +320,7 @@
 				ED5028272F8AC36C00A843D9 /* AudioEngine.swift in Sources */,
 				ED50282E2F8AC36C00A843D9 /* EQRecommendation.swift in Sources */,
 				ED5028412F8AD35B00A843D9 /* TunerInstrument.swift in Sources */,
+				ED5028432F8AD35B00A843D9 /* ReferenceAudioPlayer.swift in Sources */,
 				ED50283C2F8AD17C00A843D9 /* SpectrographView.swift in Sources */,
 				ED50283F2F8AD17C00A843D9 /* LoudnessView.swift in Sources */,
 				ED50282B2F8AC36C00A843D9 /* FrequencyPeak.swift in Sources */,

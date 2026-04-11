@@ -37,6 +37,10 @@ struct L10n {
     let loudnessPeak:       String
     let loudnessHistory:    String
 
+    // MARK: - Sensitivity
+    let sensitivityLabel:   String   // e.g. "Gain"
+    let sensitivityReset:   String   // e.g. "Reset"
+
     // MARK: - Recommendations panel
     let eqRecommendations:  String
     let spectrumClean:      String
@@ -87,6 +91,8 @@ struct L10n {
         loudnessRMS:        "RMS",
         loudnessPeak:       "Peak",
         loudnessHistory:    "History",
+        sensitivityLabel:   "Gain",
+        sensitivityReset:   "Reset",
         eqRecommendations:  "EQ Recommendations",
         spectrumClean:      "Spectrum is clean — feedback unlikely.",
         subBass:            { "Sub-bass — room rumble. Cut -\($0) dB removes the hum." },
@@ -125,6 +131,8 @@ struct L10n {
         loudnessRMS:        "RMS",
         loudnessPeak:       "Пик",
         loudnessHistory:    "История",
+        sensitivityLabel:   "Усиление",
+        sensitivityReset:   "Сброс",
         eqRecommendations:  "Рекомендации EQ",
         spectrumClean:      "Спектр чистый — обратная связь маловероятна.",
         subBass:            { "Суббас — гул помещения. Срез -\($0) dB уберёт гудение." },
@@ -163,6 +171,8 @@ struct L10n {
         loudnessRMS:        "RMS",
         loudnessPeak:       "Пік",
         loudnessHistory:    "Історія",
+        sensitivityLabel:   "Підсилення",
+        sensitivityReset:   "Скинути",
         eqRecommendations:  "Рекомендації EQ",
         spectrumClean:      "Спектр чистий — зворотний зв'язок малоймовірний.",
         subBass:            { "Суббас — гул приміщення. Зріз -\($0) dB приберe гудіння." },

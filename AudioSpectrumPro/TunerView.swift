@@ -18,6 +18,7 @@ struct TunerView: View {
 
     // MARK: - Ephemeral state
 
+    @StateObject private var audioPlayer = ReferenceAudioPlayer()
     @State private var showingSettings = false
     @State private var strobeOn: Bool = false
 
@@ -90,47 +91,36 @@ struct TunerView: View {
     // MARK: - Body
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            VStack(spacing: 0) {
-                instrumentSelector
-                    .padding(.top, 12)
+        VStack(spacing: 0) {
+            instrumentSelector
+                .padding(.top, 12)
 
-                if instrument != .chromatic && instrument.tunings.count > 1 {
-                    tuningSelector
-                        .padding(.top, 8)
-                }
-
-                if instrument != .chromatic {
-                    stringIndicators
-                        .padding(.top, 10)
-                }
-
-                readoutArea
-                    .padding(.top, 10)
-
-                Spacer(minLength: 6)
-                tuningMeter
-                Spacer(minLength: 10)
-
-                pianoKeyboard
-                    .frame(height: 90)
-                    .padding(.horizontal, 16)
-
-                quickSettingsBar
+            if instrument != .chromatic && instrument.tunings.count > 1 {
+                tuningSelector
                     .padding(.top, 8)
-                    .padding(.bottom, 12)
             }
-            .background(Color.black)
 
-            // Gear button overlay
-            Button(action: { showingSettings = true }) {
-                Image(systemName: "gearshape.fill")
-                    .font(.system(size: 18))
-                    .foregroundStyle(Color.white.opacity(0.5))
-                    .padding(14)
+            if instrument != .chromatic {
+                stringIndicators
+                    .padding(.top, 10)
             }
-            .accessibilityLabel(langManager.l10n.tunerSettings)
+
+            readoutArea
+                .padding(.top, 10)
+
+            Spacer(minLength: 6)
+            tuningMeter
+            Spacer(minLength: 10)
+
+            pianoKeyboard
+                .frame(height: 90)
+                .padding(.horizontal, 16)
+
+            quickSettingsBar
+                .padding(.top, 8)
+                .padding(.bottom, 12)
         }
+        .background(Color.black)
         .sheet(isPresented: $showingSettings) {
             settingsSheet
         }
@@ -207,20 +197,37 @@ struct TunerView: View {
             HStack(spacing: 6) {
                 ForEach(strings) { str in
                     let isNearest = nearest?.id == str.id
-                    let color = isNearest ? pillColor(centsOff: nearestStringResult?.centsOff ?? 0) : Color.white.opacity(0.15)
-                    Text(str.name)
-                        .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(isNearest ? Color.black : Color.white.opacity(0.6))
+                    let isPlaying = audioPlayer.playingFrequency.map {
+                        abs($0 - stringFrequency(str)) < 1.0
+                    } ?? false
+                    let color: Color = isPlaying
+                        ? .cyan
+                        : isNearest ? pillColor(centsOff: nearestStringResult?.centsOff ?? 0) : Color.white.opacity(0.15)
+                    Button(action: { audioPlayer.play(frequency: stringFrequency(str)) }) {
+                        HStack(spacing: 4) {
+                            Text(str.name)
+                                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                            if isPlaying {
+                                Image(systemName: "speaker.wave.1.fill")
+                                    .font(.system(size: 9))
+                            }
+                        }
+                        .foregroundStyle(isNearest || isPlaying ? Color.black : Color.white.opacity(0.6))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .background(
-                            Capsule()
-                                .fill(color)
-                        )
+                        .background(Capsule().fill(color))
+                    }
+                    .buttonStyle(.plain)
+                    .animation(.easeInOut(duration: 0.15), value: isPlaying)
                 }
             }
             .padding(.horizontal, 16)
         }
+    }
+
+    private func stringFrequency(_ str: InstrumentString) -> Float {
+        let shiftedMidi = str.midiNote + capo
+        return referenceA4 * pow(2.0, Float(shiftedMidi - 69) / 12.0)
     }
 
     private func pillColor(centsOff: Int) -> Color {
@@ -311,6 +318,12 @@ struct TunerView: View {
 
     // MARK: - Piano Keyboard
 
+    // Returns frequency for a semitone offset from C in octave 4 (C4 = MIDI 60)
+    private func pianoKeyFrequency(noteIndex: Int) -> Float {
+        let midi = 60 + noteIndex   // C4 = 60, A4 = 69
+        return referenceA4 * pow(2.0, Float(midi - 69) / 12.0)
+    }
+
     private var pianoKeyboard: some View {
         GeometryReader { geo in
             let whiteCount = 7
@@ -319,39 +332,51 @@ struct TunerView: View {
             let blackW = whiteW * 0.6
             let blackH = whiteH * 0.62
             let activeNote = reading?.note
+            let blackPositions: [CGFloat] = [
+                whiteW * 0.7, whiteW * 1.7, whiteW * 3.7, whiteW * 4.7, whiteW * 5.7
+            ]
 
             ZStack(alignment: .topLeading) {
+                // White keys
                 ForEach(0..<7, id: \.self) { i in
                     let noteIndex = whiteIndices[i]
                     let noteName = allNotes[noteIndex]
                     let isActive = activeNote == noteName
+                    let isPlaying = audioPlayer.playingFrequency.map {
+                        abs($0 - pianoKeyFrequency(noteIndex: noteIndex)) < 2.0
+                    } ?? false
+                    let fillColor: Color = isPlaying ? .cyan : isActive ? noteColor(cents: displayCents) : .white
 
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(isActive ? noteColor(cents: displayCents) : Color.white)
+                        .fill(fillColor)
                         .overlay(RoundedRectangle(cornerRadius: 3).stroke(Color.black.opacity(0.4), lineWidth: 1))
                         .frame(width: whiteW - 2, height: whiteH)
                         .offset(x: CGFloat(i) * whiteW + 1)
-                        .animation(.easeInOut(duration: 0.1), value: isActive)
+                        .animation(.easeInOut(duration: 0.1), value: isActive || isPlaying)
+                        .onTapGesture {
+                            audioPlayer.play(frequency: pianoKeyFrequency(noteIndex: noteIndex))
+                        }
                 }
 
+                // Black keys (drawn on top)
                 ForEach(0..<5, id: \.self) { i in
                     let noteIndex = blackIndices[i]
                     let noteName = allNotes[noteIndex]
                     let isActive = activeNote == noteName
-                    let positions: [CGFloat] = [
-                        whiteW * 0.7,
-                        whiteW * 1.7,
-                        whiteW * 3.7,
-                        whiteW * 4.7,
-                        whiteW * 5.7
-                    ]
+                    let isPlaying = audioPlayer.playingFrequency.map {
+                        abs($0 - pianoKeyFrequency(noteIndex: noteIndex)) < 2.0
+                    } ?? false
+                    let fillColor: Color = isPlaying ? .cyan : isActive ? noteColor(cents: displayCents) : .black
 
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(isActive ? noteColor(cents: displayCents) : Color.black)
+                        .fill(fillColor)
                         .overlay(RoundedRectangle(cornerRadius: 2).stroke(Color.white.opacity(0.15), lineWidth: 0.5))
                         .frame(width: blackW, height: blackH)
-                        .offset(x: positions[i])
-                        .animation(.easeInOut(duration: 0.1), value: isActive)
+                        .offset(x: blackPositions[i])
+                        .animation(.easeInOut(duration: 0.1), value: isActive || isPlaying)
+                        .onTapGesture {
+                            audioPlayer.play(frequency: pianoKeyFrequency(noteIndex: noteIndex))
+                        }
                 }
             }
         }
@@ -360,7 +385,7 @@ struct TunerView: View {
     // MARK: - Quick Settings Bar
 
     private var quickSettingsBar: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 10) {
             // A4 reference button
             Button(action: { showingSettings = true }) {
                 Text("A4: \(Int(referenceA4)) Hz")
@@ -393,8 +418,28 @@ struct TunerView: View {
                 )
             }
 
+            // Playing indicator
+            if audioPlayer.playingFrequency != nil {
+                Image(systemName: "speaker.wave.2.fill")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.cyan)
+                    .transition(.opacity)
+            }
+
             Spacer()
+
+            // Gear / settings button — moved here so it doesn't overlap the instrument row
+            Button(action: { showingSettings = true }) {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color.white.opacity(0.5))
+                    .padding(8)
+                    .background(Color.white.opacity(0.06))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .accessibilityLabel(langManager.l10n.tunerSettings)
         }
+        .animation(.easeInOut(duration: 0.2), value: audioPlayer.playingFrequency != nil)
         .padding(.horizontal, 16)
     }
 

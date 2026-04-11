@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MediaPlayer
 
 struct ContentView: View {
     @StateObject private var viewModel: SpectrumViewModel
@@ -77,16 +78,65 @@ struct ContentView: View {
     // MARK: - Subviews
 
     private var titleBar: some View {
-        HStack {
+        HStack(spacing: 10) {
             Text(langManager.l10n.appTitle)
                 .font(.system(size: 15, weight: .semibold, design: .monospaced))
                 .foregroundStyle(.white)
             Spacer()
+            if viewModel.isRunning {
+                sensitivityControl
+            }
             languageButton
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .background(Color(white: 0.06))
+        // Hidden MPVolumeView suppresses the system volume HUD so volume-button
+        // presses silently adjust microphone sensitivity instead.
+        .background(
+            HiddenVolumeView()
+                .frame(width: 1, height: 1)
+                .opacity(0.001)
+        )
+    }
+
+    private var sensitivityControl: some View {
+        HStack(spacing: 6) {
+            Button(action: {
+                viewModel.sensitivity = max(0.1, viewModel.sensitivity / 1.26)
+            }) {
+                Image(systemName: "minus")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.white.opacity(0.7))
+                    .frame(width: 22, height: 22)
+                    .background(Color.white.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+            .buttonStyle(.plain)
+
+            Text("\(langManager.l10n.sensitivityLabel) \(viewModel.sensitivity, specifier: "%.1f")×")
+                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                .foregroundStyle(sensitivityColor)
+                .onTapGesture { viewModel.sensitivity = 1.0 }
+
+            Button(action: {
+                viewModel.sensitivity = min(8.0, viewModel.sensitivity * 1.26)
+            }) {
+                Image(systemName: "plus")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.white.opacity(0.7))
+                    .frame(width: 22, height: 22)
+                    .background(Color.white.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private var sensitivityColor: Color {
+        if viewModel.sensitivity > 2.0 { return .orange }
+        if viewModel.sensitivity < 0.5 { return Color.white.opacity(0.4) }
+        return Color.white.opacity(0.6)
     }
 
     private var modeTabBar: some View {
@@ -260,6 +310,18 @@ struct LanguagePickerView: View {
         }
         .preferredColorScheme(.dark)
     }
+}
+
+// MARK: - Hidden Volume View (suppresses system HUD)
+
+struct HiddenVolumeView: UIViewRepresentable {
+    func makeUIView(context: Context) -> MPVolumeView {
+        let view = MPVolumeView()
+        view.showsVolumeSlider = true   // must be true to intercept HUD
+        view.isUserInteractionEnabled = false
+        return view
+    }
+    func updateUIView(_ uiView: MPVolumeView, context: Context) {}
 }
 
 // MARK: - Previews
