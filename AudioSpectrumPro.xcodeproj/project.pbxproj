@@ -485,6 +485,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AudioSpectrumPro/Preview Content\"";
+				DEVELOPMENT_TEAM = CYS83XVF42;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AudioSpectrumPro/Info.plist;
@@ -524,6 +525,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"AudioSpectrumPro/Preview Content\"";
+				DEVELOPMENT_TEAM = CYS83XVF42;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AudioSpectrumPro/Info.plist;
