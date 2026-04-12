@@ -30,6 +30,8 @@ final class SpectrumViewModel: ObservableObject {
 
     private let maxWaterfallRows = 60
     private let maxLoudnessHistory = 120
+    /// Counts audio frames since last start; used to throttle non-critical updates.
+    private var frameCounter = 0
 
     /// Set by TunerView settings; not @Published to avoid unnecessary redraws.
     var referenceA4: Float = 440.0
@@ -49,6 +51,7 @@ final class SpectrumViewModel: ObservableObject {
         guard !isRunning else { return }
         // Recreate engine so the AsyncStream is fresh after a previous stop
         audioEngine = AudioEngine()
+        frameCounter = 0
         isRunning = true
         errorMessage = nil
 
@@ -62,11 +65,25 @@ final class SpectrumViewModel: ObservableObject {
                 }
                 startVolumeObservation()
                 for await samples in audioEngine.sampleStream {
+                    frameCounter += 1
+
                     // Apply software gain for sensitivity control
                     let gainedSamples: [Float] = sensitivity == 1.0
                         ? samples
                         : samples.map { $0 * sensitivity }
                     let rawFFT = fftProcessor.process(gainedSamples)
+
+                    // ── Tuner: every frame for a responsive needle ────────────
+                    tunerReading = fftProcessor.detectPitch(
+                        rawFFT,
+                        referenceA4: referenceA4,
+                        noiseGateDB: noiseGateDB
+                    )
+
+                    // ── Spectrum / Oscilloscope / Loudness: every 2nd frame ───
+                    // (~5 Hz UI update is plenty; halves allocation pressure).
+                    guard frameCounter.isMultiple(of: 2) else { continue }
+
                     let logScaled = fftProcessor.mapToLogScale(rawFFT)
                     smooth(logScaled)
 
@@ -76,32 +93,26 @@ final class SpectrumViewModel: ObservableObject {
                         fftSize: fftProcessor.fftSize
                     )
 
-                    // Spectrum
                     displayData = smoothedData
                     peaks = detectedPeaks
                     recommendations = makeRecommendations(from: detectedPeaks)
-
-                    // Spectrograph waterfall
-                    var newRows = waterfallRows
-                    newRows.insert(smoothedData, at: 0)
-                    if newRows.count > maxWaterfallRows { newRows = Array(newRows.prefix(maxWaterfallRows)) }
-                    waterfallRows = newRows
-
-                    // Oscilloscope
                     rawSamples = gainedSamples
 
-                    // Tuner
-                    tunerReading = fftProcessor.detectPitch(rawFFT, referenceA4: referenceA4, noiseGateDB: noiseGateDB)
-
-                    // Loudness
-                    let rms = fftProcessor.rmsDB(gainedSamples)
+                    // Loudness — append in-place; removeLast avoids a full array copy.
+                    let rms  = fftProcessor.rmsDB(gainedSamples)
                     let peak = fftProcessor.truePeakDB(gainedSamples)
                     rmsDB = rms
-                    truePeakDB = max(truePeakDB * 0.999, peak)   // slow decay for true peak hold
-                    var newHistory = loudnessHistory
-                    newHistory.append(rms)
-                    if newHistory.count > maxLoudnessHistory { newHistory = Array(newHistory.dropFirst()) }
-                    loudnessHistory = newHistory
+                    truePeakDB = max(truePeakDB * 0.999, peak)
+                    loudnessHistory.append(rms)
+                    if loudnessHistory.count > maxLoudnessHistory { loudnessHistory.removeFirst() }
+
+                    // ── Waterfall: every 6th frame (~1.8 Hz) ─────────────────
+                    // Spectrograph doesn't need fast updates; this is the most
+                    // allocation-heavy step (inserts 1 KB into a 60-row array).
+                    if frameCounter.isMultiple(of: 6) {
+                        waterfallRows.insert(smoothedData, at: 0)
+                        if waterfallRows.count > maxWaterfallRows { waterfallRows.removeLast() }
+                    }
                 }
             } catch {
                 errorMessage = error.localizedDescription
