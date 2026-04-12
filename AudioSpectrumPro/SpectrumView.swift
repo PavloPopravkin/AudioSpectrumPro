@@ -10,7 +10,7 @@ struct SpectrumView: View {
 
     // Grid configuration
     private let gridFrequencies: [Float] = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 16000]
-    private let gridDBLevels: [Float] = [0, -20, -40, -60, -80]
+    private let gridDBLevels: [Float] = [0, -20, -40, -60]
 
     var body: some View {
         Canvas { context, size in
