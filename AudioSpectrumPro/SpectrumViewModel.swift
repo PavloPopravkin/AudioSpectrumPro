@@ -13,8 +13,6 @@ final class SpectrumViewModel: ObservableObject {
                                                 count: FFTProcessor.displayBinCount)
     @Published var peaks: [FrequencyPeak] = []
     @Published var recommendations: [EQRecommendation] = []
-    // Spectrograph
-    @Published var waterfallRows: [[Float]] = []
     // Oscilloscope
     @Published var rawSamples: [Float] = []
     // Tuner
@@ -29,7 +27,6 @@ final class SpectrumViewModel: ObservableObject {
     @Published var isRunning = false
     @Published var errorMessage: String?
 
-    private let maxWaterfallRows   = 60
     private let maxLoudnessHistory = 120
 
     /// Set by TunerView settings; not @Published to avoid unnecessary redraws.
@@ -118,10 +115,9 @@ final class SpectrumViewModel: ObservableObject {
                     let detectedPeaks = detector.detect(fftData: rawFFT,
                                                         sampleRate: fft.sampleRate,
                                                         fftSize: fft.fftSize)
-                    let rms         = fft.rmsDB(gained)
-                    let peakDB      = fft.truePeakDB(gained)
-                    let smoothSnap  = smoothed          // value copy for MainActor
-                    let addWaterfall = frame.isMultiple(of: 6)
+                    let rms        = fft.rmsDB(gained)
+                    let peakDB     = fft.truePeakDB(gained)
+                    let smoothSnap = smoothed          // value copy for MainActor
 
                     await MainActor.run { [weak self] in
                         guard let self else { return }
@@ -134,13 +130,6 @@ final class SpectrumViewModel: ObservableObject {
                         self.loudnessHistory.append(rms)
                         if self.loudnessHistory.count > self.maxLoudnessHistory {
                             self.loudnessHistory.removeFirst()
-                        }
-                        // ── Waterfall: every 6th frame (~2 Hz) ───────────────
-                        if addWaterfall {
-                            self.waterfallRows.insert(smoothSnap, at: 0)
-                            if self.waterfallRows.count > self.maxWaterfallRows {
-                                self.waterfallRows.removeLast()
-                            }
                         }
                     }
                 }

@@ -161,8 +161,6 @@ struct ContentView: View {
             switch displayMode {
             case .spectrum:
                 SpectrumView(displayData: viewModel.displayData, peaks: viewModel.peaks)
-            case .spectrograph:
-                SpectrographView(rows: viewModel.waterfallRows)
             case .tuner:
                 TunerView(reading: viewModel.tunerReading)
                     .environmentObject(viewModel)
