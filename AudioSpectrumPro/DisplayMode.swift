@@ -8,6 +8,8 @@ enum DisplayMode: String, CaseIterable, Identifiable {
     case tuner
     case oscilloscope
     case loudness
+    case generator
+    case rt60
 
     var id: String { rawValue }
 
@@ -17,6 +19,8 @@ enum DisplayMode: String, CaseIterable, Identifiable {
         case .tuner:        return "music.note"
         case .oscilloscope: return "waveform"
         case .loudness:     return "speaker.wave.3.fill"
+        case .generator:    return "waveform.path"
+        case .rt60:         return "timer"
         }
     }
 
@@ -26,6 +30,8 @@ enum DisplayMode: String, CaseIterable, Identifiable {
         case .tuner:        return l10n.modeTuner
         case .oscilloscope: return l10n.modeOscilloscope
         case .loudness:     return l10n.modeLoudness
+        case .generator:    return l10n.modeGenerator
+        case .rt60:         return l10n.modeRT60
         }
     }
 }

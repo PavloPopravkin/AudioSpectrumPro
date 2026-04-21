@@ -32,6 +32,10 @@
 		ED50283F2F8AD17C00A843D9 /* LoudnessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED50283A2F8AD17C00A843D9 /* LoudnessView.swift */; };
 		ED5028412F8AD35B00A843D9 /* TunerInstrument.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5028402F8AD35B00A843D9 /* TunerInstrument.swift */; };
 		ED5028432F8AD35B00A843D9 /* ReferenceAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5028422F8AD35B00A843D9 /* ReferenceAudioPlayer.swift */; };
+		ED5028442F8B100000A843D9 /* SignalGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5028452F8B100000A843D9 /* SignalGenerator.swift */; };
+		ED5028462F8B100000A843D9 /* SignalGeneratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5028472F8B100000A843D9 /* SignalGeneratorView.swift */; };
+		ED5028482F8B100000A843D9 /* RT60Analyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED5028492F8B100000A843D9 /* RT60Analyzer.swift */; };
+		ED50284A2F8B100000A843D9 /* RT60View.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED50284B2F8B100000A843D9 /* RT60View.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +86,10 @@
 		ED50283A2F8AD17C00A843D9 /* LoudnessView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoudnessView.swift; sourceTree = "<group>"; };
 		ED5028402F8AD35B00A843D9 /* TunerInstrument.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunerInstrument.swift; sourceTree = "<group>"; };
 		ED5028422F8AD35B00A843D9 /* ReferenceAudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReferenceAudioPlayer.swift; sourceTree = "<group>"; };
+		ED5028452F8B100000A843D9 /* SignalGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalGenerator.swift; sourceTree = "<group>"; };
+		ED5028472F8B100000A843D9 /* SignalGeneratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalGeneratorView.swift; sourceTree = "<group>"; };
+		ED5028492F8B100000A843D9 /* RT60Analyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RT60Analyzer.swift; sourceTree = "<group>"; };
+		ED50284B2F8B100000A843D9 /* RT60View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RT60View.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +148,10 @@
 				ED50283A2F8AD17C00A843D9 /* LoudnessView.swift */,
 				ED5028402F8AD35B00A843D9 /* TunerInstrument.swift */,
 				ED5028422F8AD35B00A843D9 /* ReferenceAudioPlayer.swift */,
+				ED5028452F8B100000A843D9 /* SignalGenerator.swift */,
+				ED5028472F8B100000A843D9 /* SignalGeneratorView.swift */,
+				ED5028492F8B100000A843D9 /* RT60Analyzer.swift */,
+				ED50284B2F8B100000A843D9 /* RT60View.swift */,
 				ED5028392F8AD17C00A843D9 /* OscilloscopeView.swift */,
 				ED5028372F8AD17C00A843D9 /* SpectrographView.swift */,
 				ED5028362F8AD17C00A843D9 /* TunerView.swift */,
@@ -321,6 +333,10 @@
 				ED50282E2F8AC36C00A843D9 /* EQRecommendation.swift in Sources */,
 				ED5028412F8AD35B00A843D9 /* TunerInstrument.swift in Sources */,
 				ED5028432F8AD35B00A843D9 /* ReferenceAudioPlayer.swift in Sources */,
+				ED5028442F8B100000A843D9 /* SignalGenerator.swift in Sources */,
+				ED5028462F8B100000A843D9 /* SignalGeneratorView.swift in Sources */,
+				ED5028482F8B100000A843D9 /* RT60Analyzer.swift in Sources */,
+				ED50284A2F8B100000A843D9 /* RT60View.swift in Sources */,
 				ED50283C2F8AD17C00A843D9 /* SpectrographView.swift in Sources */,
 				ED50283F2F8AD17C00A843D9 /* LoudnessView.swift in Sources */,
 				ED50282B2F8AC36C00A843D9 /* FrequencyPeak.swift in Sources */,

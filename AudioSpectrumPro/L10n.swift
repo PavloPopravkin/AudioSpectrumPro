@@ -21,6 +21,8 @@ struct L10n {
     let modeTuner:          String
     let modeOscilloscope:   String
     let modeLoudness:       String
+    let modeGenerator:      String
+    let modeRT60:           String
 
     // MARK: - Tuner
     let tunerListening:     String
@@ -51,6 +53,33 @@ struct L10n {
     // MARK: - Sensitivity
     let sensitivityLabel:   String   // e.g. "Gain"
     let sensitivityReset:   String   // e.g. "Reset"
+
+    // MARK: - Signal Generator
+    let genPinkNoise:       String
+    let genWhiteNoise:      String
+    let genSineSweep:       String
+    let genFixedTone:       String
+    let genFrequency:       String
+    let genDuration:        String
+    let genPlay:            String
+    let genPinkNoiseDesc:   String
+    let genWhiteNoiseDesc:  String
+    let genSineSweepDesc:   String
+    let genFixedToneDesc:   String
+
+    // MARK: - RT60
+    let rt60Idle:               String
+    let rt60Start:              String
+    let rt60WaitingForImpulse:  String
+    let rt60ImpulseTip:         String
+    let rt60Recording:          String
+    let rt60Analyzing:          String
+    let rt60Failed:             String
+    let rt60NeedsMic:           String
+    let rt60QualityDry:         String
+    let rt60QualityGood:        String
+    let rt60QualityFair:        String
+    let rt60QualityHigh:        String
 
     // MARK: - Recommendations panel
     let eqRecommendations:  String
@@ -91,6 +120,8 @@ struct L10n {
         modeTuner:          "Tuner",
         modeOscilloscope:   "Oscilloscope",
         modeLoudness:       "Loudness",
+        modeGenerator:      "Generator",
+        modeRT60:           "RT60",
         tunerListening:     "Listening…",
         tunerCents:         "cents",
         tunerSettings:      "Tuner Settings",
@@ -113,6 +144,29 @@ struct L10n {
         loudnessHistory:    "History",
         sensitivityLabel:   "Gain",
         sensitivityReset:   "Reset",
+        genPinkNoise:       "Pink Noise",
+        genWhiteNoise:      "White Noise",
+        genSineSweep:       "Sine Sweep",
+        genFixedTone:       "Fixed Tone",
+        genFrequency:       "Frequency",
+        genDuration:        "Duration",
+        genPlay:            "Play",
+        genPinkNoiseDesc:   "Pink noise (–3 dB/oct) closely matches real-world programme levels. Use for loudspeaker alignment and acoustic measurements.",
+        genWhiteNoiseDesc:  "White noise has equal energy per frequency. Useful for PA system response checks and signal path verification.",
+        genSineSweepDesc:   "Logarithmic sweep 20 Hz → 20 kHz. Reveals resonances and non-linearities in speakers, rooms, and signal chains.",
+        genFixedToneDesc:   "Constant sine tone at a single frequency. Use for ring-out, feedback elimination, and driver alignment.",
+        rt60Idle:           "Tap Start, then make a loud impulse (clap, burst of noise) to measure room reverberation time.",
+        rt60Start:          "Start",
+        rt60WaitingForImpulse: "Waiting for impulse…",
+        rt60ImpulseTip:     "Clap your hands, snap, or use the Generator → Sine Sweep for an automated measurement.",
+        rt60Recording:      "Recording decay…",
+        rt60Analyzing:      "Analyzing…",
+        rt60Failed:         "Measurement failed",
+        rt60NeedsMic:       "Start the microphone to measure RT60",
+        rt60QualityDry:     "Very dry / close-miked",
+        rt60QualityGood:    "Ideal for live sound",
+        rt60QualityFair:    "Moderately reverberant",
+        rt60QualityHigh:    "Very reverberant — intelligibility risk",
         eqRecommendations:  "EQ Recommendations",
         spectrumClean:      "Spectrum is clean — feedback unlikely.",
         subBass:            { "Sub-bass — room rumble. Cut -\($0) dB removes the hum." },
@@ -140,6 +194,8 @@ struct L10n {
         modeTuner:          "Тюнер",
         modeOscilloscope:   "Осциллоскоп",
         modeLoudness:       "Громкость",
+        modeGenerator:      "Генератор",
+        modeRT60:           "RT60",
         tunerListening:     "Слушаю…",
         tunerCents:         "центов",
         tunerSettings:      "Настройки тюнера",
@@ -162,6 +218,29 @@ struct L10n {
         loudnessHistory:    "История",
         sensitivityLabel:   "Усиление",
         sensitivityReset:   "Сброс",
+        genPinkNoise:       "Розовый шум",
+        genWhiteNoise:      "Белый шум",
+        genSineSweep:       "Синус-свип",
+        genFixedTone:       "Тон",
+        genFrequency:       "Частота",
+        genDuration:        "Длительность",
+        genPlay:            "Воспр.",
+        genPinkNoiseDesc:   "Розовый шум (–3 дБ/окт) близок к реальным программным уровням. Используется для настройки АС и акустических измерений.",
+        genWhiteNoiseDesc:  "Белый шум — равная энергия на всех частотах. Подходит для проверки АЧХ системы и сигнального тракта.",
+        genSineSweepDesc:   "Логарифмический свип от 20 Гц до 20 кГц. Выявляет резонансы и нелинейности в АС, помещении и тракте.",
+        genFixedToneDesc:   "Постоянный синусоидальный тон. Используется для подавления обратной связи и настройки усилителей.",
+        rt60Idle:           "Нажмите Старт, затем создайте громкий импульс (хлопок, шум) для измерения времени реверберации.",
+        rt60Start:          "Старт",
+        rt60WaitingForImpulse: "Ожидание импульса…",
+        rt60ImpulseTip:     "Хлопните в ладоши, щёлкните пальцами или используйте Генератор → Синус-свип для автоматического измерения.",
+        rt60Recording:      "Запись затухания…",
+        rt60Analyzing:      "Анализ…",
+        rt60Failed:         "Измерение не удалось",
+        rt60NeedsMic:       "Запустите микрофон для измерения RT60",
+        rt60QualityDry:     "Очень сухо / ближнее микрофонирование",
+        rt60QualityGood:    "Идеально для живого звука",
+        rt60QualityFair:    "Умеренная реверберация",
+        rt60QualityHigh:    "Сильная реверберация — риск потери разборчивости",
         eqRecommendations:  "Рекомендации EQ",
         spectrumClean:      "Спектр чистый — обратная связь маловероятна.",
         subBass:            { "Суббас — гул помещения. Срез -\($0) dB уберёт гудение." },
@@ -189,6 +268,8 @@ struct L10n {
         modeTuner:          "Тюнер",
         modeOscilloscope:   "Осцилоскоп",
         modeLoudness:       "Гучність",
+        modeGenerator:      "Генератор",
+        modeRT60:           "RT60",
         tunerListening:     "Слухаю…",
         tunerCents:         "центів",
         tunerSettings:      "Налаштування тюнера",
@@ -211,6 +292,29 @@ struct L10n {
         loudnessHistory:    "Історія",
         sensitivityLabel:   "Підсилення",
         sensitivityReset:   "Скинути",
+        genPinkNoise:       "Рожевий шум",
+        genWhiteNoise:      "Білий шум",
+        genSineSweep:       "Синус-свіп",
+        genFixedTone:       "Тон",
+        genFrequency:       "Частота",
+        genDuration:        "Тривалість",
+        genPlay:            "Відтв.",
+        genPinkNoiseDesc:   "Рожевий шум (–3 дБ/окт) близький до реальних програмних рівнів. Використовується для налаштування АС та акустичних вимірювань.",
+        genWhiteNoiseDesc:  "Білий шум — рівна енергія на всіх частотах. Підходить для перевірки АЧХ системи та сигнального тракту.",
+        genSineSweepDesc:   "Логарифмічний свіп від 20 Гц до 20 кГц. Виявляє резонанси та нелінійності в АС, приміщенні та тракті.",
+        genFixedToneDesc:   "Постійний синусоїдальний тон. Використовується для придушення зворотного зв'язку та налаштування підсилювачів.",
+        rt60Idle:           "Натисніть Старт, потім створіть гучний імпульс (хлопок, шум) для вимірювання часу реверберації.",
+        rt60Start:          "Старт",
+        rt60WaitingForImpulse: "Очікування імпульсу…",
+        rt60ImpulseTip:     "Клацніть пальцями, хлопніть або скористайтеся Генератором → Синус-свіп для автоматичного вимірювання.",
+        rt60Recording:      "Запис загасання…",
+        rt60Analyzing:      "Аналіз…",
+        rt60Failed:         "Вимірювання не вдалось",
+        rt60NeedsMic:       "Запустіть мікрофон для вимірювання RT60",
+        rt60QualityDry:     "Дуже сухо / ближнє мікрофонування",
+        rt60QualityGood:    "Ідеально для живого звуку",
+        rt60QualityFair:    "Помірна реверберація",
+        rt60QualityHigh:    "Сильна реверберація — ризик втрати розбірливості",
         eqRecommendations:  "Рекомендації EQ",
         spectrumClean:      "Спектр чистий — зворотний зв'язок малоймовірний.",
         subBass:            { "Суббас — гул приміщення. Зріз -\($0) dB приберe гудіння." },

@@ -42,6 +42,9 @@ final class SpectrumViewModel: ObservableObject {
     /// Reference to the background processing task so we can cancel it on stop().
     private var processingTask: Task<Void, Never>?
 
+    /// RT60 reverberation time analyzer — fed live samples every audio frame.
+    let rt60Analyzer = RT60Analyzer()
+
     // MARK: - Start / Stop
 
     func start() {
@@ -63,6 +66,7 @@ final class SpectrumViewModel: ObservableObject {
                     self.fftProcessor = FFTProcessor(fftSize: self.fftProcessor.fftSize,
                                                      sampleRate: actualRate)
                 }
+                self.rt60Analyzer.sampleRate = actualRate
             } catch {
                 self.errorMessage = error.localizedDescription
                 self.isRunning    = false
@@ -102,8 +106,12 @@ final class SpectrumViewModel: ObservableObject {
                     let tuner  = fft.detectPitch(rawFFT, referenceA4: refA4,
                                                  noiseGateDB: gateDB)
 
-                    // ── Tuner: push every frame for a responsive needle ───────
-                    await MainActor.run { [weak self] in self?.tunerReading = tuner }
+                    // ── Tuner + RT60: push every frame ───────────────────────
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        self.tunerReading = tuner
+                        self.rt60Analyzer.process(samples: gained)
+                    }
 
                     // ── Spectrum / oscilloscope / loudness: every 2nd frame ───
                     guard frame.isMultiple(of: 2) else { continue }

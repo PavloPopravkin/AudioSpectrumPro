@@ -172,6 +172,11 @@ struct ContentView: View {
                     truePeakDB: viewModel.truePeakDB,
                     history: viewModel.loudnessHistory
                 )
+            case .generator:
+                SignalGeneratorView()
+            case .rt60:
+                RT60View(analyzer: viewModel.rt60Analyzer,
+                         isRunning: viewModel.isRunning)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
