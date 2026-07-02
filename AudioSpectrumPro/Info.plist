@@ -2,7 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Analize Audio Spectrum</string>
+	<string>Audio Spectrum Pro uses the microphone to analyze live sound in real time — spectrum, tuner, oscilloscope, loudness and RT60 measurements. Audio is processed on your device and is not recorded or shared.</string>
 </dict>
 </plist>

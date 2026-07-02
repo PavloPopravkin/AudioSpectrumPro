@@ -1,0 +1,5 @@
+.DS_Store
+.serena/
+.wwebjs_cache/
+xcuserdata/
+*.xcuserstate

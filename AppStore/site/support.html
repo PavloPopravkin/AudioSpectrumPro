@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Support — Audio Spectrum Pro</title>
+<meta name="description" content="Help, FAQ and contact for Audio Spectrum Pro — the audio measurement suite for live sound engineers." />
+<meta name="theme-color" content="#000000" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="glyph" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> Audio Spectrum Pro</a>
+    <nav class="nav-links">
+      <a href="index.html#features">Features</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a class="nav-cta" href="index.html#download">Download</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Menu">≡</button>
+  </div>
+</header>
+
+<section class="page-head">
+  <div class="wrap">
+    <span class="kicker">Help</span>
+    <h1>Support</h1>
+    <div class="meta">Answers to common questions — and a real person if you need one.</div>
+  </div>
+</section>
+
+<div class="wrap">
+<div class="prose">
+
+  <div class="contact-card">
+    <div>
+      <div class="mono" style="color:var(--faint);font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px">Contact</div>
+      <div class="big"><a href="mailto:popravkin@croscor.com" style="border:0">popravkin@croscor.com</a></div>
+      <p style="margin:8px 0 0;color:var(--muted)">Email us with your device model and iOS version — we usually reply within 1–2 business days.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:48px">Frequently asked questions</h2>
+  <div class="faq">
+    <details open>
+      <summary>The app needs microphone access — is that safe?</summary>
+      <p>Yes. The microphone is the App's core sensor — it's how every instrument measures sound. Audio is processed live on your device and is <strong>never recorded, stored, or sent anywhere</strong>. See our <a href="privacy.html">Privacy Policy</a> for details.</p>
+    </details>
+    <details>
+      <summary>I denied microphone access by mistake. How do I enable it?</summary>
+      <p>Open iOS <strong>Settings → Privacy &amp; Security → Microphone</strong>, find Audio Spectrum Pro, and turn it on. (Or Settings → Audio Spectrum Pro → Microphone.) Then relaunch the App.</p>
+    </details>
+    <details>
+      <summary>The test-signal generator plays no sound.</summary>
+      <p>Check three things: (1) the iPhone <strong>silent/ring switch</strong> isn't muting output, (2) the <strong>volume</strong> is up, and (3) audio is routed to the speaker or the headphones/interface you expect. The generator plays through the current output device while the microphone keeps analyzing.</p>
+    </details>
+    <details>
+      <summary>How do I measure RT60?</summary>
+      <p>Open the <strong>RT60</strong> tab, tap <strong>Start</strong>, then create a sharp impulse — a hand clap, a click, or let the built-in sine sweep play. The App captures the decay, computes <strong>T20</strong>, and extrapolates <strong>RT60</strong>, with a plain-language verdict from “very dry” to “reverberant”.</p>
+    </details>
+    <details>
+      <summary>How accurate is the tuner, and can I change the A4 reference?</summary>
+      <p>Pitch is detected to hundredths of a cent. Tap the settings control in the Tuner to adjust the <strong>A4 reference</strong> (e.g. 440 / 442 / 444 Hz), enable a <strong>capo</strong> offset, or pick an instrument preset. A noise gate helps reject bleed from a loud PA.</p>
+    </details>
+    <details>
+      <summary>Are the measurements lab-calibrated?</summary>
+      <p>Audio Spectrum Pro is a professional field tool, but it uses the iPhone's built-in microphone, which is not a calibrated reference mic. Readings are highly useful for relative measurements, troubleshooting and tuning — treat absolute SPL/RT60 figures as accurate estimates rather than certified lab values.</p>
+    </details>
+    <details>
+      <summary>Which languages and devices are supported?</summary>
+      <p>The interface is available in <strong>English, Russian and Ukrainian</strong>. The App runs on iPhone and iPad with <strong>iOS 16.2 or later</strong>, and supports landscape orientation so you can lay it on the meter bridge.</p>
+    </details>
+    <details>
+      <summary>Does it cost anything or need an account?</summary>
+      <p>No subscriptions and no account. You don't sign in, and nothing about you is collected.</p>
+    </details>
+  </div>
+
+  <h2 style="margin-top:48px">Still stuck?</h2>
+  <p>Email <a href="mailto:popravkin@croscor.com">popravkin@croscor.com</a> and include your iPhone/iPad model, iOS version, and a short description (a screenshot helps). We read every message.</p>
+
+</div>
+</div>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-bottom" style="margin-top:0;border-top:0">
+      <a class="brand" href="index.html"><span class="glyph" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> Audio Spectrum Pro</a>
+      <span>© <span id="yr">2026</span> Croscor · <a href="privacy.html" style="color:var(--muted)">Privacy</a> · <a href="terms.html" style="color:var(--muted)">Terms</a> · <a href="support.html" style="color:var(--muted)">Support</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/app.js" defer></script>
+</body>
+</html>

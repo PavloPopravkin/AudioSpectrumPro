@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Audio Spectrum Pro — measurement suite for live sound engineers</title>
+<meta name="description" content="A full audio measurement suite on your iPhone: spectrum analyzer, chromatic tuner, oscilloscope, loudness meter, test-signal generator and RT60 reverberation analysis. Built for the stage." />
+<meta name="theme-color" content="#000000" />
+<link rel="canonical" href="https://audiospectrum.croscor.com/" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Audio Spectrum Pro" />
+<meta property="og:description" content="A full audio measurement suite on your iPhone — spectrum, tuner, oscilloscope, loudness, signal generator and RT60. Built for live sound." />
+<meta property="og:url" content="https://audiospectrum.croscor.com/" />
+<meta property="og:image" content="https://audiospectrum.croscor.com/assets/screens/spectrum.jpeg" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="glyph" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      Audio Spectrum Pro
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#field">On stage</a>
+      <a href="support.html">Support</a>
+      <a href="privacy.html">Privacy</a>
+      <a class="nav-cta" href="#download">Download</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Menu">≡</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="reveal in">
+        <div class="hero-tag mono">PRO AUDIO TOOLKIT &nbsp;//&nbsp; iOS 16.2+</div>
+        <h1>See the sound.<br /><span class="accent">Tame the room.</span></h1>
+        <p class="hero-sub">A full measurement suite for live sound engineers — spectrum analyzer, chromatic tuner, oscilloscope, loudness meter, test-signal generator and RT60 reverberation analysis. One black screen, built for the stage.</p>
+        <div class="cta-row" id="download">
+          <a class="badge-store" href="#" aria-label="Download on the App Store">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.36 12.78c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.75 2.28-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.39 0 1.78.74 3 .72 1.24-.02 2.02-1.12 2.78-2.23.88-1.28 1.24-2.52 1.26-2.58-.03-.01-2.41-.92-2.43-3.65zM14.12 6.0c.64-.78 1.07-1.86.95-2.94-.92.04-2.04.61-2.7 1.39-.59.69-1.11 1.79-.97 2.85 1.03.08 2.08-.52 2.72-1.3z"/></svg>
+            <span><span class="bs-small">Coming soon to the</span><br /><span class="bs-big">App&nbsp;Store</span></span>
+          </a>
+          <span class="badge-note">Launching on iOS 16.2+ · iPhone &amp; iPad</span>
+        </div>
+        <div class="hero-stats">
+          <div class="st"><b class="g">6</b><span>instruments</span></div>
+          <div class="st"><b class="c">50 Hz–16 kHz</b><span>real-time FFT</span></div>
+          <div class="st"><b class="a">±0.01¢</b><span>tuner precision</span></div>
+          <div class="st"><b>RT60 · T20</b><span>room acoustics</span></div>
+        </div>
+      </div>
+      <div class="hero-device reveal in">
+        <div class="device glow">
+          <span class="island" aria-hidden="true"></span>
+          <div class="screen"><img src="assets/screens/spectrum.jpeg" alt="Audio Spectrum Pro spectrum analyzer with EQ recommendations" loading="eager" /></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-analyzer reveal in">
+      <div class="analyzer-wrap">
+        <canvas id="heroSpectrum" aria-hidden="true"></canvas>
+        <div class="analyzer-axis mono">
+          <span>50</span><span>100</span><span>250</span><span>500</span><span>1k</span><span>2k</span><span>5k</span><span>10k</span><span>16k</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">The toolkit</span>
+      <h2>One iPhone. A full measurement rack.</h2>
+      <p>Six instruments a live engineer actually reaches for — each tuned for the stage, the monitor world, and the room.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- Spectrum -->
+    <div class="feature reveal">
+      <div class="feature-text">
+        <span class="kicker">01 · Spectrum analyzer</span>
+        <h3>Find the problem frequency before it finds you.</h3>
+        <p>Real-time spectrum from 50&nbsp;Hz to 16&nbsp;kHz on a logarithmic scale. Automatic peak detection highlights trouble instantly, and the EQ&nbsp;Suggestions panel tells you which band to cut — and by how many dB — before feedback ever happens.</p>
+        <ul class="spec-list">
+          <li><b>50 Hz – 16 kHz</b> logarithmic, real-time FFT</li>
+          <li><b>Auto peak detection</b> with frequency readout</li>
+          <li><b>EQ Suggestions</b> — band &amp; cut in decibels</li>
+        </ul>
+      </div>
+      <div class="feature-media"><div class="device"><span class="island"></span><div class="screen"><img src="assets/screens/spectrum.jpeg" alt="Spectrum analyzer with EQ recommendations" loading="lazy" /></div></div></div>
+    </div>
+
+    <!-- Tuner -->
+    <div class="feature c reveal">
+      <div class="feature-text">
+        <span class="kicker cyan">02 · Chromatic tuner</span>
+        <h3>Hundredths-of-a-cent pitch, for any instrument.</h3>
+        <p>High-precision detection with a clean in-tune indicator. Presets for guitar, bass, violin, viola, cello, ukulele, mandolin, banjo and a full chromatic mode — plus adjustable A4 reference, capo support and a noise gate that rejects bleed from the PA.</p>
+        <ul class="spec-list">
+          <li><b>±0.01 cent</b> pitch resolution</li>
+          <li><b>9 instrument presets</b> + chromatic</li>
+          <li><b>Adjustable A4</b>, capo &amp; noise gate</li>
+        </ul>
+      </div>
+      <div class="feature-media"><div class="device"><span class="island"></span><div class="screen"><img src="assets/screens/tuner.jpeg" alt="Chromatic tuner with piano keyboard" loading="lazy" /></div></div></div>
+    </div>
+
+    <!-- Oscilloscope -->
+    <div class="feature reveal">
+      <div class="feature-text">
+        <span class="kicker">03 · Oscilloscope</span>
+        <h3>The waveform, the moment it sounds wrong.</h3>
+        <p>A real-time waveform display for signal-integrity checks, phase inspection and clipping detection. The first thing you reach for when a channel sounds off — see the shape of the signal, not just its level.</p>
+        <ul class="spec-list">
+          <li><b>Live waveform</b> rendering</li>
+          <li><b>Clipping &amp; phase</b> inspection</li>
+          <li><b>Signal-integrity</b> at a glance</li>
+        </ul>
+      </div>
+      <div class="feature-media"><div class="device"><span class="island"></span><div class="screen"><img src="assets/screens/oscilloscope.jpeg" alt="Oscilloscope waveform" loading="lazy" /></div></div></div>
+    </div>
+
+    <!-- Loudness (built meter) -->
+    <div class="feature a reveal">
+      <div class="feature-text">
+        <span class="kicker amber">04 · Loudness meter</span>
+        <h3>RMS and true-peak, side by side.</h3>
+        <p>Simultaneous RMS and true-peak readout with a scrolling history graph. Watch your average level and catch peak spikes before they slam your limiters — 120 frames of history keep the trend in view.</p>
+        <ul class="spec-list">
+          <li><b>RMS + true peak</b> simultaneously</li>
+          <li><b>120-frame</b> scrolling history</li>
+          <li><b>Limiter-safe</b> spike awareness</li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <div class="meter-card" id="loudMeter">
+          <div class="meter-inner">
+            <div class="meter-row">
+              <div class="lbl mono"><span>RMS</span><b data-rms>−12.0 dB</b></div>
+              <div class="bar-track"><div class="bar-fill rms"></div></div>
+            </div>
+            <div class="meter-row">
+              <div class="lbl mono"><span>TRUE PEAK</span><b data-peak>−3.0 dB</b></div>
+              <div class="bar-track"><div class="bar-fill peak"></div></div>
+            </div>
+            <div class="lbl mono" style="margin-top:6px"><span>HISTORY</span><span>120 f</span></div>
+            <div class="history"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generator -->
+    <div class="feature c reveal">
+      <div class="feature-text">
+        <span class="kicker cyan">05 · Test-signal generator</span>
+        <h3>Pink, white, sweep or tone — through the speaker, while the mic listens.</h3>
+        <p>Pink noise, white noise, a logarithmic sine sweep (20&nbsp;Hz → 20&nbsp;kHz) or a fixed tone from 50&nbsp;Hz to 8&nbsp;kHz. Play out loud while the analyzer keeps measuring — tune PA systems, ring out monitor wedges and find room resonances without a separate generator.</p>
+        <ul class="spec-list">
+          <li><b>Pink / white</b> noise</li>
+          <li><b>Log sine sweep</b> 20 Hz → 20 kHz</li>
+          <li><b>Fixed tone</b> 50 Hz – 8 kHz</li>
+        </ul>
+      </div>
+      <div class="feature-media"><div class="device"><span class="island"></span><div class="screen"><img src="assets/screens/generator.jpeg" alt="Test-signal generator, sine sweep" loading="lazy" /></div></div></div>
+    </div>
+
+    <!-- RT60 -->
+    <div class="feature r reveal">
+      <div class="feature-text">
+        <span class="kicker red">06 · RT60 reverberation</span>
+        <h3>Size up a room's acoustics in seconds.</h3>
+        <p>Tap start, make an impulse — a clap, a click, or a sine sweep — and the app records the decay, computes T20 and extrapolates RT60. Know instantly whether the room is working for you or against you.</p>
+        <ul class="spec-list">
+          <li><b>Impulse capture</b> — clap, click or sweep</li>
+          <li><b>T20 → RT60</b> extrapolation</li>
+          <li><b>Plain-language</b> verdict (dry → reverberant)</li>
+        </ul>
+      </div>
+      <div class="feature-media"><div class="device"><span class="island"></span><div class="screen"><img src="assets/screens/rt60.jpeg" alt="RT60 reverberation decay curve" loading="lazy" /></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FIELD STRIP -->
+<section class="field" id="field">
+  <div class="wrap section-head reveal" style="padding-top:80px;margin-bottom:0">
+    <span class="kicker">Built for the field</span>
+    <h2 style="margin-bottom:0">Designed for the moment the show starts.</h2>
+  </div>
+  <div class="wrap" style="padding-bottom:80px;padding-top:48px">
+    <div class="field-grid reveal">
+      <div class="field-cell">
+        <span class="ic">Gain</span>
+        <h4>Volume-button gain</h4>
+        <p>Adjust mic gain with the hardware volume buttons — one hand, while the other stays on the console.</p>
+      </div>
+      <div class="field-cell">
+        <span class="ic">Dark</span>
+        <h4>Stage-dark interface</h4>
+        <p>Fully black UI that reads under stage lighting and never kills your night vision.</p>
+      </div>
+      <div class="field-cell">
+        <span class="ic">Land</span>
+        <h4>Landscape ready</h4>
+        <p>Lay it flat on the meter bridge or a side table — full landscape support.</p>
+      </div>
+      <div class="field-cell">
+        <span class="ic">i18n</span>
+        <h4>Three languages</h4>
+        <p>English, Russian and Ukrainian interface, switchable on the fly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="wrap reveal">
+    <span class="kicker" style="justify-content:center">Get it</span>
+    <h2>The measurement rack that fits in a pocket.</h2>
+    <p>No subscriptions, no accounts, no audio leaving your device. Just the instruments — ready when the room is.</p>
+    <div class="cta-row" style="justify-content:center">
+      <a class="badge-store" href="#" aria-label="Download on the App Store">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.36 12.78c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.75 2.28-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.39 0 1.78.74 3 .72 1.24-.02 2.02-1.12 2.78-2.23.88-1.28 1.24-2.52 1.26-2.58-.03-.01-2.41-.92-2.43-3.65zM14.12 6.0c.64-.78 1.07-1.86.95-2.94-.92.04-2.04.61-2.7 1.39-.59.69-1.11 1.79-.97 2.85 1.03.08 2.08-.52 2.72-1.3z"/></svg>
+        <span><span class="bs-small">Coming soon to the</span><br /><span class="bs-big">App&nbsp;Store</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="/"><span class="glyph" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> Audio Spectrum Pro</a>
+        <p class="footer-about">A professional audio measurement suite for live sound engineers. All processing happens on your device.</p>
+      </div>
+      <div>
+        <h5>Product</h5>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#field">On stage</a></li>
+          <li><a href="#download">Download</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Use</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Support</h5>
+        <ul>
+          <li><a href="support.html">Help &amp; FAQ</a></li>
+          <li><a href="mailto:popravkin@croscor.com">popravkin@croscor.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="yr">2026</span> Croscor. All rights reserved.</span>
+      <span>Made for the stage · audiospectrum.croscor.com</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/app.js" defer></script>
+</body>
+</html>

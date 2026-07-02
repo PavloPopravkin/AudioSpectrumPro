@@ -329,9 +329,10 @@ struct HiddenVolumeView: UIViewRepresentable {
 
 // MARK: - Previews
 
+#if DEBUG
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(viewModel: .preview)
+        ContentView(viewModel: SpectrumViewModel.preview)
             .environmentObject(LanguageManager())
             .previewDisplayName("С данными")
         ContentView()
@@ -339,3 +340,4 @@ struct ContentView_Previews: PreviewProvider {
             .previewDisplayName("Пустой")
     }
 }
+#endif
