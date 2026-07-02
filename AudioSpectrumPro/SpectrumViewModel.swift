@@ -95,9 +95,11 @@ final class SpectrumViewModel: ObservableObject {
                 // Measurement in progress — don't let the screen sleep.
                 UIApplication.shared.isIdleTimerDisabled = true
             } catch {
-                self.error = error is AudioEngineError
-                    ? .microphonePermission
-                    : .other(error.localizedDescription)
+                if case AudioEngineError.microphonePermissionDenied = error {
+                    self.error = .microphonePermission
+                } else {
+                    self.error = .other(error.localizedDescription)
+                }
                 self.isRunning = false
                 return
             }

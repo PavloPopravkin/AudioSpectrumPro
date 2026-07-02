@@ -38,6 +38,13 @@ final class AudioEngine {
 
         let inputNode = engine.inputNode
         let format = inputNode.outputFormat(forBus: 0)
+        // A dead audio stack (broken simulator audio, failed I/O unit init)
+        // reports a 0 Hz / 0-channel format. Tapping or starting the engine in
+        // that state raises an uncatchable ObjC exception ("invalid reuse after
+        // initialization failure") — bail out with a catchable error instead.
+        guard format.sampleRate > 0, format.channelCount > 0 else {
+            throw AudioEngineError.audioInputUnavailable
+        }
         let bufferSize: AVAudioFrameCount = 4096
 
         inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: format) { [weak self] buffer, _ in
@@ -65,9 +72,15 @@ final class AudioEngine {
 
 enum AudioEngineError: LocalizedError {
     case microphonePermissionDenied
+    case audioInputUnavailable
 
-    // Fallback only — the UI maps this case to a localized L10n string.
     var errorDescription: String? {
-        "Microphone access denied. Allow access in Settings → Privacy."
+        switch self {
+        // Fallback only — the UI maps this case to a localized L10n string.
+        case .microphonePermissionDenied:
+            return "Microphone access denied. Allow access in Settings → Privacy."
+        case .audioInputUnavailable:
+            return "Audio input is unavailable. Restart the app (or the Simulator) and try again."
+        }
     }
 }

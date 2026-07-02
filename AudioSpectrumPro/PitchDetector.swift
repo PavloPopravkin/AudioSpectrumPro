@@ -31,6 +31,9 @@ final class PitchDetector {
     private var cmnd:  [Float]
 
     init(sampleRate: Float) {
+        // Clamp against degenerate rates (a dead audio stack reports 0 Hz);
+        // avoids empty-range and zero-size buffer traps below.
+        let sampleRate = max(sampleRate, 8000)
         self.sampleRate = sampleRate
         self.tauMax     = Int(sampleRate / minFrequency)
         self.tauMin     = max(2, Int(sampleRate / maxFrequency))

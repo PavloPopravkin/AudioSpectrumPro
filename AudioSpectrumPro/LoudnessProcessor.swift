@@ -68,6 +68,9 @@ final class LoudnessProcessor {
     // MARK: - Init
 
     init(sampleRate: Float) {
+        // Clamp against degenerate rates (a dead audio stack reports 0 Hz);
+        // a zero-size ring buffer would trap on the modulo below.
+        let sampleRate = max(sampleRate, 8000)
         self.sampleRate       = sampleRate
         self.blockSamples     = Int(sampleRate * 0.4)
         self.hopSamples       = Int(sampleRate * 0.1)
