@@ -193,8 +193,6 @@ struct ContentView: View {
                              holdTrace: viewModel.peakHoldTrace,
                              peakHoldEnabled: $viewModel.peakHoldEnabled,
                              peakHoldAccessibilityLabel: langManager.l10n.peakHold)
-            case .spectrograph:
-                SpectrographView(rows: viewModel.spectrographRows)
             case .tuner:
                 TunerView(reading: viewModel.tunerReading)
                     .environmentObject(viewModel)
@@ -276,8 +274,6 @@ struct ContentView: View {
                          peaks: viewModel.peaks,
                          holdTrace: viewModel.peakHoldTrace,
                          isSnapshot: true)
-        case .spectrograph:
-            SpectrographView(rows: viewModel.spectrographRows)
         case .tuner:
             TunerView(reading: viewModel.tunerReading)
         case .oscilloscope:

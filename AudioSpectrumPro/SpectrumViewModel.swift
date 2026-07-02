@@ -23,8 +23,6 @@ final class SpectrumViewModel: ObservableObject {
     // and is available to the share snapshot)
     @Published var peakHoldEnabled = false
     @Published var peakHoldTrace: [Float] = []
-    // Spectrograph (waterfall) — newest row first
-    @Published var spectrographRows: [[Float]] = []
     // Oscilloscope
     @Published var rawSamples: [Float] = []
     // Tuner
@@ -43,7 +41,6 @@ final class SpectrumViewModel: ObservableObject {
     @Published var error: AnalyzerError?
 
     private let maxLoudnessHistory = 120
-    private let maxSpectrographRows = 60
 
     /// Set by TunerView settings; not @Published to avoid unnecessary redraws.
     var referenceA4: Float = 440.0
@@ -74,7 +71,6 @@ final class SpectrumViewModel: ObservableObject {
         lufsShortTerm   = FFTProcessor.minDB
         lufsIntegrated  = FFTProcessor.minDB
         loudnessHistory = []
-        spectrographRows = []
         peakHoldTrace   = []
 
         // Phase 1 — start the engine on MainActor (permission prompt, session setup).
@@ -200,10 +196,6 @@ final class SpectrumViewModel: ObservableObject {
                         self.loudnessHistory.append(lufsM)
                         if self.loudnessHistory.count > self.maxLoudnessHistory {
                             self.loudnessHistory.removeFirst()
-                        }
-                        self.spectrographRows.insert(smoothSnap, at: 0)
-                        if self.spectrographRows.count > self.maxSpectrographRows {
-                            self.spectrographRows.removeLast()
                         }
                     }
                 }
