@@ -66,7 +66,8 @@ final class AudioEngine {
 enum AudioEngineError: LocalizedError {
     case microphonePermissionDenied
 
+    // Fallback only — the UI maps this case to a localized L10n string.
     var errorDescription: String? {
-        "Нет доступа к микрофону. Разрешите доступ в Настройках → Конфиденциальность."
+        "Microphone access denied. Allow access in Settings → Privacy."
     }
 }

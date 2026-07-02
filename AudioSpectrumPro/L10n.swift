@@ -14,6 +14,8 @@ struct L10n {
     let errorOK:            String
     let language:           String
     let microphoneError:    String
+    let shareSnapshot:      String  // accessibility label
+    let peakHold:           String  // accessibility label
 
     // MARK: - Display modes
     let modeSpectrum:       String
@@ -80,6 +82,7 @@ struct L10n {
     let rt60QualityGood:        String
     let rt60QualityFair:        String
     let rt60QualityHigh:        String
+    let rt60OctaveBands:        String
 
     // MARK: - Recommendations panel
     let eqRecommendations:  String
@@ -115,6 +118,8 @@ struct L10n {
         errorOK:            "OK",
         language:           "Language",
         microphoneError:    "Microphone access denied. Allow access in Settings → Privacy.",
+        shareSnapshot:      "Share screenshot",
+        peakHold:           "Peak hold",
         modeSpectrum:       "Spectrum",
         modeSpectrograph:   "Spectrograph",
         modeTuner:          "Tuner",
@@ -167,6 +172,7 @@ struct L10n {
         rt60QualityGood:    "Ideal for live sound",
         rt60QualityFair:    "Moderately reverberant",
         rt60QualityHigh:    "Very reverberant — intelligibility risk",
+        rt60OctaveBands:    "Octave bands",
         eqRecommendations:  "EQ Recommendations",
         spectrumClean:      "Spectrum is clean — feedback unlikely.",
         subBass:            { "Sub-bass — room rumble. Cut -\($0) dB removes the hum." },
@@ -189,6 +195,8 @@ struct L10n {
         errorOK:            "OK",
         language:           "Язык",
         microphoneError:    "Нет доступа к микрофону. Разрешите доступ в Настройках → Конфиденциальность.",
+        shareSnapshot:      "Поделиться снимком",
+        peakHold:           "Удержание пиков",
         modeSpectrum:       "Спектр",
         modeSpectrograph:   "Спектрограф",
         modeTuner:          "Тюнер",
@@ -241,6 +249,7 @@ struct L10n {
         rt60QualityGood:    "Идеально для живого звука",
         rt60QualityFair:    "Умеренная реверберация",
         rt60QualityHigh:    "Сильная реверберация — риск потери разборчивости",
+        rt60OctaveBands:    "Октавные полосы",
         eqRecommendations:  "Рекомендации EQ",
         spectrumClean:      "Спектр чистый — обратная связь маловероятна.",
         subBass:            { "Суббас — гул помещения. Срез -\($0) dB уберёт гудение." },
@@ -263,6 +272,8 @@ struct L10n {
         errorOK:            "OK",
         language:           "Мова",
         microphoneError:    "Немає доступу до мікрофона. Дозвольте доступ у Налаштуваннях → Конфіденційність.",
+        shareSnapshot:      "Поділитися знімком",
+        peakHold:           "Утримання піків",
         modeSpectrum:       "Спектр",
         modeSpectrograph:   "Спектрограф",
         modeTuner:          "Тюнер",
@@ -315,6 +326,7 @@ struct L10n {
         rt60QualityGood:    "Ідеально для живого звуку",
         rt60QualityFair:    "Помірна реверберація",
         rt60QualityHigh:    "Сильна реверберація — ризик втрати розбірливості",
+        rt60OctaveBands:    "Октавні смуги",
         eqRecommendations:  "Рекомендації EQ",
         spectrumClean:      "Спектр чистий — зворотний зв'язок малоймовірний.",
         subBass:            { "Суббас — гул приміщення. Зріз -\($0) dB приберe гудіння." },

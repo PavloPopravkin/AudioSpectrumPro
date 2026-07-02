@@ -4,7 +4,9 @@
 import SwiftUI
 
 struct LoudnessView: View {
-    let rmsDB: Float
+    let lufsMomentary: Float
+    let lufsShortTerm: Float
+    let lufsIntegrated: Float
     let truePeakDB: Float
     let history: [Float]
     @EnvironmentObject private var langManager: LanguageManager
@@ -18,22 +20,36 @@ struct LoudnessView: View {
         .background(Color.black)
     }
 
-    // MARK: - Level Meters
+    // MARK: - Level Meters (ITU-R BS.1770: M = 400 ms, S = 3 s, I = gated session)
 
     private var metersRow: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 18) {
             LevelMeterView(
-                label: langManager.l10n.loudnessRMS,
-                valueDB: rmsDB,
+                label: "M",
+                valueDB: lufsMomentary,
+                unit: "LUFS",
+                color: .cyan
+            )
+            LevelMeterView(
+                label: "S",
+                valueDB: lufsShortTerm,
+                unit: "LUFS",
                 color: .green
             )
             LevelMeterView(
-                label: langManager.l10n.loudnessPeak,
+                label: "I",
+                valueDB: lufsIntegrated,
+                unit: "LUFS",
+                color: .white
+            )
+            LevelMeterView(
+                label: "TP",
                 valueDB: truePeakDB,
-                color: truePeakDB > -3 ? .red : .orange
+                unit: "dBTP",
+                color: truePeakDB > -1 ? .red : .orange
             )
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity)
     }
@@ -101,6 +117,7 @@ struct LoudnessView: View {
 struct LevelMeterView: View {
     let label: String
     let valueDB: Float
+    var unit: String = "dB"
     let color: Color
 
     private let minDB = FFTProcessor.minDB
@@ -110,11 +127,11 @@ struct LevelMeterView: View {
         VStack(spacing: 6) {
             // Value readout
             Text(valueDB > minDB
-                 ? "\(valueDB, format: .number.precision(.fractionLength(1))) dB"
+                 ? "\(valueDB, format: .number.precision(.fractionLength(1))) \(unit)"
                  : "–∞")
-                .font(.system(size: 16, weight: .bold, design: .monospaced))
+                .font(.system(size: 14, weight: .bold, design: .monospaced))
                 .foregroundStyle(color)
-                .frame(minWidth: 80)
+                .frame(minWidth: 74)
 
             // Vertical bar
             GeometryReader { geo in

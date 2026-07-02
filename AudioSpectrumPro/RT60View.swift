@@ -147,6 +147,40 @@ struct RT60View: View {
                     .padding(.trailing, 20)
             }
             .padding(.top, 6)
+
+            // Octave-band breakdown
+            if !result.bands.isEmpty {
+                octaveBandsView(result.bands)
+                    .padding(.top, 14)
+                    .padding(.horizontal, 16)
+            }
+        }
+    }
+
+    private func octaveBandsView(_ bands: [RT60Band]) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(langManager.l10n.rt60OctaveBands)
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(Color.white.opacity(0.35))
+
+            HStack(spacing: 6) {
+                ForEach(bands) { band in
+                    VStack(spacing: 3) {
+                        Text(band.isValid ? String(format: "%.2f", band.rt60) : "—")
+                            .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(band.isValid
+                                             ? rt60Color(band.rt60)
+                                             : Color.white.opacity(0.25))
+                        Text("\(band.label) Hz")
+                            .font(.system(size: 9, design: .monospaced))
+                            .foregroundStyle(Color.white.opacity(0.4))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(Color.white.opacity(0.05))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                }
+            }
         }
     }
 

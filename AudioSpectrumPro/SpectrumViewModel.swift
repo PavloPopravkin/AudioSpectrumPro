@@ -5,29 +5,45 @@
 import Combine
 import SwiftUI
 import AVFoundation
+import UIKit
 
 @MainActor
 final class SpectrumViewModel: ObservableObject {
+    enum AnalyzerError: Equatable {
+        case microphonePermission
+        case other(String)
+    }
+
     // Spectrum
     @Published var displayData: [Float] = Array(repeating: FFTProcessor.minDB,
                                                 count: FFTProcessor.displayBinCount)
     @Published var peaks: [FrequencyPeak] = []
     @Published var recommendations: [EQRecommendation] = []
+    // Peak hold (max envelope; lives here so it survives mode switches
+    // and is available to the share snapshot)
+    @Published var peakHoldEnabled = false
+    @Published var peakHoldTrace: [Float] = []
+    // Spectrograph (waterfall) — newest row first
+    @Published var spectrographRows: [[Float]] = []
     // Oscilloscope
     @Published var rawSamples: [Float] = []
     // Tuner
     @Published var tunerReading: TunerReading? = nil
-    // Loudness
+    // Loudness (BS.1770)
     @Published var rmsDB: Float = FFTProcessor.minDB
-    @Published var truePeakDB: Float = FFTProcessor.minDB
-    @Published var loudnessHistory: [Float] = []
+    @Published var truePeakDB: Float = FFTProcessor.minDB   // dBTP, session max
+    @Published var lufsMomentary: Float = FFTProcessor.minDB
+    @Published var lufsShortTerm: Float = FFTProcessor.minDB
+    @Published var lufsIntegrated: Float = FFTProcessor.minDB
+    @Published var loudnessHistory: [Float] = []             // momentary LUFS
     // Sensitivity / gain (1.0 = normal, >1 amplifies, <1 attenuates)
     @Published var sensitivity: Float = 1.0
     // State
     @Published var isRunning = false
-    @Published var errorMessage: String?
+    @Published var error: AnalyzerError?
 
     private let maxLoudnessHistory = 120
+    private let maxSpectrographRows = 60
 
     /// Set by TunerView settings; not @Published to avoid unnecessary redraws.
     var referenceA4: Float = 440.0
@@ -51,7 +67,15 @@ final class SpectrumViewModel: ObservableObject {
         guard !isRunning else { return }
         audioEngine  = AudioEngine()
         isRunning    = true
-        errorMessage = nil
+        error        = nil
+        // Fresh measurement session
+        truePeakDB      = FFTProcessor.minDB
+        lufsMomentary   = FFTProcessor.minDB
+        lufsShortTerm   = FFTProcessor.minDB
+        lufsIntegrated  = FFTProcessor.minDB
+        loudnessHistory = []
+        spectrographRows = []
+        peakHoldTrace   = []
 
         // Phase 1 — start the engine on MainActor (permission prompt, session setup).
         Task { [weak self] in
@@ -67,9 +91,14 @@ final class SpectrumViewModel: ObservableObject {
                                                      sampleRate: actualRate)
                 }
                 self.rt60Analyzer.sampleRate = actualRate
+
+                // Measurement in progress — don't let the screen sleep.
+                UIApplication.shared.isIdleTimerDisabled = true
             } catch {
-                self.errorMessage = error.localizedDescription
-                self.isRunning    = false
+                self.error = error is AudioEngineError
+                    ? .microphonePermission
+                    : .other(error.localizedDescription)
+                self.isRunning = false
                 return
             }
 
@@ -84,8 +113,13 @@ final class SpectrumViewModel: ObservableObject {
 
                 let fft      = FFTProcessor(sampleRate: sampleRate)
                 let detector = PeakDetector()
+                let pitch    = PitchDetector(sampleRate: sampleRate)
+                let loudness = LoudnessProcessor(sampleRate: sampleRate)
                 var smoothed = [Float](repeating: FFTProcessor.minDB,
                                        count: FFTProcessor.displayBinCount)
+                var holdTrace = [Float](repeating: FFTProcessor.minDB,
+                                        count: FFTProcessor.displayBinCount)
+                var holdWasEnabled = false
                 let alpha: Float = 0.3
                 var frame    = 0
 
@@ -94,17 +128,22 @@ final class SpectrumViewModel: ObservableObject {
                     frame += 1
 
                     // Read actor-isolated settings in a single MainActor hop.
-                    let snap = await MainActor.run { [weak self] () -> (Float, Float, Float)? in
+                    let snap = await MainActor.run { [weak self] () -> (Float, Float, Float, Bool)? in
                         guard let self else { return nil }
-                        return (self.sensitivity, self.referenceA4, self.noiseGateDB)
+                        return (self.sensitivity, self.referenceA4, self.noiseGateDB,
+                                self.peakHoldEnabled)
                     }
-                    guard let (sens, refA4, gateDB) = snap else { break }
+                    guard let (sens, refA4, gateDB, holdEnabled) = snap else { break }
 
                     // ── All heavy work runs on the background thread ──────────
                     let gained = sens == 1.0 ? samples : samples.map { $0 * sens }
                     let rawFFT = fft.process(gained)
-                    let tuner  = fft.detectPitch(rawFFT, referenceA4: refA4,
-                                                 noiseGateDB: gateDB)
+                    // YIN pitch detection (time domain) — accurate on low strings
+                    // where the FFT-peak method suffers octave errors.
+                    let tunerFreq = pitch.detectPitch(gained, noiseGateDB: gateDB)
+                    let tuner = tunerFreq.map { TunerReading(frequency: $0, referenceA4: refA4) }
+                    // BS.1770 needs every buffer for its 100 ms gating hop.
+                    loudness.process(gained)
 
                     // ── Tuner + RT60: push every frame ───────────────────────
                     await MainActor.run { [weak self] in
@@ -120,24 +159,49 @@ final class SpectrumViewModel: ObservableObject {
                     for i in 0..<min(log.count, smoothed.count) {
                         smoothed[i] = alpha * log[i] + (1.0 - alpha) * smoothed[i]
                     }
+
+                    // Peak hold: elementwise max; reset on re-enable.
+                    if holdEnabled {
+                        if !holdWasEnabled {
+                            holdTrace = smoothed
+                        } else {
+                            for i in 0..<holdTrace.count {
+                                holdTrace[i] = max(holdTrace[i], smoothed[i])
+                            }
+                        }
+                    }
+                    holdWasEnabled = holdEnabled
+
                     let detectedPeaks = detector.detect(fftData: rawFFT,
                                                         sampleRate: fft.sampleRate,
                                                         fftSize: fft.fftSize)
                     let rms        = fft.rmsDB(gained)
-                    let peakDB     = fft.truePeakDB(gained)
-                    let smoothSnap = smoothed          // value copy for MainActor
+                    let smoothSnap = smoothed          // value copies for MainActor
+                    let holdSnap   = holdEnabled ? holdTrace : []
+                    let lufsM      = loudness.momentary
+                    let lufsS      = loudness.shortTerm
+                    let lufsI      = loudness.integrated
+                    let peakTP     = loudness.maxTruePeakDB
 
                     await MainActor.run { [weak self] in
                         guard let self else { return }
                         self.displayData     = smoothSnap
                         self.peaks           = detectedPeaks
                         self.recommendations = self.makeRecommendations(from: detectedPeaks)
+                        self.peakHoldTrace   = holdSnap
                         self.rawSamples      = gained
                         self.rmsDB           = rms
-                        self.truePeakDB      = max(self.truePeakDB * 0.999, peakDB)
-                        self.loudnessHistory.append(rms)
+                        self.truePeakDB      = peakTP
+                        self.lufsMomentary   = lufsM
+                        self.lufsShortTerm   = lufsS
+                        self.lufsIntegrated  = lufsI
+                        self.loudnessHistory.append(lufsM)
                         if self.loudnessHistory.count > self.maxLoudnessHistory {
                             self.loudnessHistory.removeFirst()
+                        }
+                        self.spectrographRows.insert(smoothSnap, at: 0)
+                        if self.spectrographRows.count > self.maxSpectrographRows {
+                            self.spectrographRows.removeLast()
                         }
                     }
                 }
@@ -151,6 +215,7 @@ final class SpectrumViewModel: ObservableObject {
         processingTask = nil
         stopVolumeObservation()
         isRunning = false
+        UIApplication.shared.isIdleTimerDisabled = false
     }
 
     // MARK: - Volume-button sensitivity

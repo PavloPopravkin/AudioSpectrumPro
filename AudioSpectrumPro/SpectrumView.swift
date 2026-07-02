@@ -7,28 +7,45 @@ import SwiftUI
 struct SpectrumView: View {
     let displayData: [Float]
     let peaks: [FrequencyPeak]
+    /// Max-envelope trace (peak hold); empty when disabled.
+    var holdTrace: [Float] = []
+    /// Present in the live view; nil hides the HOLD control (e.g. snapshots).
+    var peakHoldEnabled: Binding<Bool>? = nil
+    var peakHoldAccessibilityLabel: String = "Peak hold"
+    /// Snapshot rendering: draw current peak labels directly at full opacity
+    /// (the timeline/fade state machine never runs inside ImageRenderer).
+    var isSnapshot: Bool = false
 
     // Grid configuration
     private let gridFrequencies: [Float] = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 16000]
     private let gridDBLevels: [Float] = [0, -20, -40, -60]
 
-    // Peak hold: each entry keeps the peak plus the moment it should expire.
+    // Peak hold labels: each entry keeps the peak plus the moment it should expire.
     @State private var heldPeaks: [(peak: FrequencyPeak, expiry: Date)] = []
     private let holdDuration: TimeInterval = 2.5
     private let fadeDuration: TimeInterval = 0.5
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.05, paused: false)) { timeline in
+        TimelineView(.animation(minimumInterval: 0.05, paused: isSnapshot)) { timeline in
             Canvas { context, size in
-                let now = timeline.date
-                let visible = heldPeaks.filter { $0.expiry > now }
                 drawGrid(context: context, size: size)
                 drawSpectrum(context: context, size: size)
-                drawPeakLabels(context: context, size: size, heldPeaks: visible, now: now)
+                drawHoldTrace(context: context, size: size)
+                if isSnapshot {
+                    let now = timeline.date
+                    let entries = peaks.map { (peak: $0, expiry: now.addingTimeInterval(1)) }
+                    drawPeakLabels(context: context, size: size, heldPeaks: entries, now: now)
+                } else {
+                    let now = timeline.date
+                    let visible = heldPeaks.filter { $0.expiry > now }
+                    drawPeakLabels(context: context, size: size, heldPeaks: visible, now: now)
+                }
             }
         }
         .background(Color.black)
+        .overlay(alignment: .topTrailing) { holdButton }
         .onChange(of: peaks) { newPeaks in
+            guard !isSnapshot else { return }
             let now    = Date()
             let expiry = now.addingTimeInterval(holdDuration)
             // Drop fully expired entries first
@@ -41,6 +58,28 @@ struct SpectrumView: View {
                     heldPeaks.append((peak: p, expiry: expiry))
                 }
             }
+        }
+    }
+
+    // MARK: - HOLD control
+
+    @ViewBuilder
+    private var holdButton: some View {
+        if let binding = peakHoldEnabled, !isSnapshot {
+            Button {
+                binding.wrappedValue.toggle()
+            } label: {
+                Text("HOLD")
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(binding.wrappedValue ? Color.orange : Color.white.opacity(0.4))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(binding.wrappedValue ? Color.orange.opacity(0.15) : Color.white.opacity(0.06))
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(peakHoldAccessibilityLabel)
+            .padding(8)
         }
     }
 
@@ -127,6 +166,23 @@ struct SpectrumView: View {
 
         // Stroke the line on top
         context.stroke(linePath, with: .color(Color(hue: 0.45, saturation: 0.8, brightness: 1.0)), lineWidth: 1.5)
+    }
+
+    // MARK: - Peak hold trace
+
+    private func drawHoldTrace(context: GraphicsContext, size: CGSize) {
+        guard holdTrace.count > 1 else { return }
+        let count = holdTrace.count
+        let chartHeight = size.height - 20
+
+        var path = Path()
+        for i in 0..<count {
+            let x = CGFloat(i) / CGFloat(count - 1) * size.width
+            let y = yPos(db: holdTrace[i], height: chartHeight)
+            if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
+            else      { path.addLine(to: CGPoint(x: x, y: y)) }
+        }
+        context.stroke(path, with: .color(Color.orange.opacity(0.85)), lineWidth: 1)
     }
 
     // MARK: - Peak Labels

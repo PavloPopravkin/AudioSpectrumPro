@@ -14,6 +14,9 @@ struct ContentView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var showingLanguagePicker = false
     @State private var displayMode: DisplayMode = .spectrum
+    /// Sensitivity as it was before auto-boosting for the tuner, restored on exit.
+    @State private var preTunerSensitivity: Float? = nil
+    @State private var shareItem: ShareImage? = nil
 
     @MainActor
     init(viewModel: SpectrumViewModel? = nil) {
@@ -31,18 +34,35 @@ struct ContentView: View {
         .background(Color.black)
         .preferredColorScheme(.dark)
         .alert(langManager.l10n.errorTitle,
-               isPresented: .constant(viewModel.errorMessage != nil)) {
-            Button(langManager.l10n.errorOK) { viewModel.errorMessage = nil }
+               isPresented: .constant(viewModel.error != nil)) {
+            Button(langManager.l10n.errorOK) { viewModel.error = nil }
         } message: {
-            Text(viewModel.errorMessage ?? "")
+            Text(errorText)
         }
         .sheet(isPresented: $showingLanguagePicker) {
             LanguagePickerView()
         }
+        .sheet(item: $shareItem) { item in
+            ActivityView(items: [item.image])
+        }
         .onChange(of: displayMode) { mode in
             if mode == .tuner {
+                if preTunerSensitivity == nil {
+                    preTunerSensitivity = viewModel.sensitivity
+                }
                 viewModel.sensitivity = 5.0
+            } else if let saved = preTunerSensitivity {
+                viewModel.sensitivity = saved
+                preTunerSensitivity = nil
             }
+        }
+    }
+
+    private var errorText: String {
+        switch viewModel.error {
+        case .microphonePermission: return langManager.l10n.microphoneError
+        case .other(let message):   return message
+        case nil:                   return ""
         }
     }
 
@@ -90,6 +110,9 @@ struct ContentView: View {
             Spacer()
             if viewModel.isRunning {
                 sensitivityControl
+            }
+            if displayMode != .generator {
+                shareButton
             }
             languageButton
         }
@@ -165,7 +188,13 @@ struct ContentView: View {
         Group {
             switch displayMode {
             case .spectrum:
-                SpectrumView(displayData: viewModel.displayData, peaks: viewModel.peaks)
+                SpectrumView(displayData: viewModel.displayData,
+                             peaks: viewModel.peaks,
+                             holdTrace: viewModel.peakHoldTrace,
+                             peakHoldEnabled: $viewModel.peakHoldEnabled,
+                             peakHoldAccessibilityLabel: langManager.l10n.peakHold)
+            case .spectrograph:
+                SpectrographView(rows: viewModel.spectrographRows)
             case .tuner:
                 TunerView(reading: viewModel.tunerReading)
                     .environmentObject(viewModel)
@@ -173,7 +202,9 @@ struct ContentView: View {
                 OscilloscopeView(samples: viewModel.rawSamples)
             case .loudness:
                 LoudnessView(
-                    rmsDB: viewModel.rmsDB,
+                    lufsMomentary: viewModel.lufsMomentary,
+                    lufsShortTerm: viewModel.lufsShortTerm,
+                    lufsIntegrated: viewModel.lufsIntegrated,
                     truePeakDB: viewModel.truePeakDB,
                     history: viewModel.loudnessHistory
                 )
@@ -185,6 +216,86 @@ struct ContentView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - Share snapshot
+
+    private var shareButton: some View {
+        Button(action: shareSnapshot) {
+            Image(systemName: "square.and.arrow.up")
+                .font(.system(size: 13))
+                .foregroundStyle(Color.white.opacity(0.5))
+                .frame(width: 22, height: 22)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(langManager.l10n.shareSnapshot)
+    }
+
+    private func shareSnapshot() {
+        guard let image = renderSnapshot() else { return }
+        shareItem = ShareImage(image: image)
+    }
+
+    /// Renders the current measurement panel into a shareable PNG card.
+    private func renderSnapshot() -> UIImage? {
+        let timestamp = Date().formatted(date: .abbreviated, time: .shortened)
+        let card = VStack(spacing: 0) {
+            HStack {
+                Text(langManager.l10n.appTitle)
+                    .font(.system(size: 15, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(.white)
+                Spacer()
+                Text("\(displayMode.title(l10n: langManager.l10n)) · \(timestamp)")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(Color.white.opacity(0.5))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(white: 0.06))
+
+            snapshotPanel
+                .frame(width: 900, height: 560)
+        }
+        .frame(width: 900)
+        .background(Color.black)
+        .environment(\.colorScheme, .dark)
+        .environmentObject(langManager)
+        .environmentObject(viewModel)
+
+        let renderer = ImageRenderer(content: card)
+        renderer.scale = 2
+        renderer.isOpaque = true
+        return renderer.uiImage
+    }
+
+    @ViewBuilder
+    private var snapshotPanel: some View {
+        switch displayMode {
+        case .spectrum:
+            SpectrumView(displayData: viewModel.displayData,
+                         peaks: viewModel.peaks,
+                         holdTrace: viewModel.peakHoldTrace,
+                         isSnapshot: true)
+        case .spectrograph:
+            SpectrographView(rows: viewModel.spectrographRows)
+        case .tuner:
+            TunerView(reading: viewModel.tunerReading)
+        case .oscilloscope:
+            OscilloscopeView(samples: viewModel.rawSamples)
+        case .loudness:
+            LoudnessView(
+                lufsMomentary: viewModel.lufsMomentary,
+                lufsShortTerm: viewModel.lufsShortTerm,
+                lufsIntegrated: viewModel.lufsIntegrated,
+                truePeakDB: viewModel.truePeakDB,
+                history: viewModel.loudnessHistory
+            )
+        case .generator:
+            EmptyView()
+        case .rt60:
+            RT60View(analyzer: viewModel.rt60Analyzer,
+                     isRunning: viewModel.isRunning)
+        }
     }
 
     private var bottomBar: some View {
@@ -318,6 +429,24 @@ struct LanguagePickerView: View {
         }
         .preferredColorScheme(.dark)
     }
+}
+
+// MARK: - Share sheet plumbing
+
+struct ShareImage: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
+
+struct ActivityView: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController,
+                                context: Context) {}
 }
 
 // MARK: - Hidden Volume View (suppresses system HUD)
