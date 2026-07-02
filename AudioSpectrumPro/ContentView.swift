@@ -39,6 +39,11 @@ struct ContentView: View {
         .sheet(isPresented: $showingLanguagePicker) {
             LanguagePickerView()
         }
+        .onChange(of: displayMode) { mode in
+            if mode == .tuner {
+                viewModel.sensitivity = 5.0
+            }
+        }
     }
 
     // MARK: - Layouts

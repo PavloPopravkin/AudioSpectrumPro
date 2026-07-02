@@ -12,13 +12,36 @@ struct SpectrumView: View {
     private let gridFrequencies: [Float] = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 16000]
     private let gridDBLevels: [Float] = [0, -20, -40, -60]
 
+    // Peak hold: each entry keeps the peak plus the moment it should expire.
+    @State private var heldPeaks: [(peak: FrequencyPeak, expiry: Date)] = []
+    private let holdDuration: TimeInterval = 2.5
+    private let fadeDuration: TimeInterval = 0.5
+
     var body: some View {
-        Canvas { context, size in
-            drawGrid(context: context, size: size)
-            drawSpectrum(context: context, size: size)
-            drawPeakLabels(context: context, size: size)
+        TimelineView(.animation(minimumInterval: 0.05, paused: false)) { timeline in
+            Canvas { context, size in
+                let now = timeline.date
+                let visible = heldPeaks.filter { $0.expiry > now }
+                drawGrid(context: context, size: size)
+                drawSpectrum(context: context, size: size)
+                drawPeakLabels(context: context, size: size, heldPeaks: visible, now: now)
+            }
         }
         .background(Color.black)
+        .onChange(of: peaks) { newPeaks in
+            let now    = Date()
+            let expiry = now.addingTimeInterval(holdDuration)
+            // Drop fully expired entries first
+            heldPeaks.removeAll { $0.expiry <= now }
+            // Upsert: refresh expiry for a nearby existing entry, or add new one
+            for p in newPeaks {
+                if let idx = heldPeaks.firstIndex(where: { abs($0.peak.frequency - p.frequency) < 80 }) {
+                    heldPeaks[idx] = (peak: p, expiry: expiry)
+                } else {
+                    heldPeaks.append((peak: p, expiry: expiry))
+                }
+            }
+        }
     }
 
     // MARK: - Grid
@@ -108,13 +131,23 @@ struct SpectrumView: View {
 
     // MARK: - Peak Labels
 
-    private func drawPeakLabels(context: GraphicsContext, size: CGSize) {
+    private func drawPeakLabels(context: GraphicsContext,
+                                size: CGSize,
+                                heldPeaks: [(peak: FrequencyPeak, expiry: Date)],
+                                now: Date) {
         let chartHeight = size.height - 20
         let font = Font.system(size: 11, weight: .bold, design: .monospaced)
 
-        for peak in peaks {
-            let x = CGFloat(FFTProcessor.normalizedX(for: peak.frequency)) * size.width
-            let peakY = yPos(db: peak.magnitude, height: chartHeight)
+        for entry in heldPeaks {
+            let peak      = entry.peak
+            let remaining = entry.expiry.timeIntervalSince(now)
+            // Fade out during the last `fadeDuration` seconds
+            let opacity   = remaining < fadeDuration
+                            ? CGFloat(remaining / fadeDuration)
+                            : 1.0
+
+            let x      = CGFloat(FFTProcessor.normalizedX(for: peak.frequency)) * size.width
+            let peakY  = yPos(db: peak.magnitude, height: chartHeight)
             let labelY = max(peakY - 20, 8)
 
             // Urgency-based colour
@@ -124,11 +157,11 @@ struct SpectrumView: View {
             var tick = Path()
             tick.move(to: CGPoint(x: x, y: peakY - 4))
             tick.addLine(to: CGPoint(x: x, y: labelY + 12))
-            context.stroke(tick, with: .color(color.opacity(0.7)), lineWidth: 1)
+            context.stroke(tick, with: .color(color.opacity(0.7 * opacity)), lineWidth: 1)
 
             // Frequency label
             context.draw(
-                Text(peak.frequencyLabel).font(font).foregroundColor(color),
+                Text(peak.frequencyLabel).font(font).foregroundColor(color.opacity(opacity)),
                 at: CGPoint(x: x, y: labelY)
             )
         }
