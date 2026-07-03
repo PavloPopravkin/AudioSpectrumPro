@@ -149,32 +149,46 @@
     }
   }
 
-  /* ---------- loudness meter (built; no screenshot exists) ---------- */
+  /* ---------- loudness meter (built; LUFS M/S/I + dBTP, decorative) ---------- */
   var meter = document.getElementById("loudMeter");
   if (meter && !reduce) {
-    var rms = meter.querySelector(".bar-fill.rms");
-    var peak = meter.querySelector(".bar-fill.peak");
+    var barM = meter.querySelector(".bar-fill.m");
+    var barS = meter.querySelector(".bar-fill.s");
+    var barI = meter.querySelector(".bar-fill.i");
+    var barP = meter.querySelector(".bar-fill.peak");
+    var lblM = meter.querySelector("[data-m]");
+    var lblS = meter.querySelector("[data-s]");
+    var lblI = meter.querySelector("[data-i]");
+    var lblP = meter.querySelector("[data-peak]");
     var hist = meter.querySelector(".history");
-    var rmsLbl = meter.querySelector("[data-rms]");
-    var peakLbl = meter.querySelector("[data-peak]");
-    var NB = 28, bars2 = [];
+    var NB = 32, bars2 = [];
     for (var b = 0; b < NB; b++) {
       var el = document.createElement("i"); hist.appendChild(el); bars2.push(el);
     }
-    var lvl = 0.4, pk = 0.55, tt = 0;
+    // Work in LUFS (-40..0) / dBTP; map to 0..100% bar width.
+    function pctL(lufs) { return Math.max(2, Math.min(100, (lufs + 40) / 40 * 100)); }
+    function pctP(dbtp) { return Math.max(2, Math.min(100, (dbtp + 18) / 18 * 100)); }
+    var m = -20, s = -20, iAcc = [], tt = 0;
     setInterval(function () {
       tt += 0.2;
-      var target = 0.35 + 0.28 * (0.5 + 0.5 * Math.sin(tt)) + Math.random() * 0.12;
-      lvl += (target - lvl) * 0.3;
-      var instPeak = Math.min(1, lvl + 0.15 + Math.random() * 0.18);
-      if (instPeak > pk) pk = instPeak; else pk -= 0.02;
-      if (rms) rms.style.width = (lvl * 100).toFixed(0) + "%";
-      if (peak) peak.style.width = (pk * 100).toFixed(0) + "%";
-      if (rmsLbl) rmsLbl.textContent = (-(1 - lvl) * 48).toFixed(1) + " dB";
-      if (peakLbl) peakLbl.textContent = (-(1 - pk) * 36).toFixed(1) + " dB";
-      // shift history
+      // momentary: lively; short-term: slow follow; integrated: running mean
+      var target = -22 + 9 * (0.5 + 0.5 * Math.sin(tt)) + (Math.random() * 4 - 2);
+      m += (target - m) * 0.4;
+      s += (m - s) * 0.08;
+      iAcc.push(m); if (iAcc.length > 120) iAcc.shift();
+      var iVal = iAcc.reduce(function (a, c) { return a + c; }, 0) / iAcc.length;
+      var peak = Math.min(-0.5, m + 8 + Math.random() * 3); // dBTP near the ceiling
+      if (barM) barM.style.width = pctL(m).toFixed(0) + "%";
+      if (barS) barS.style.width = pctL(s).toFixed(0) + "%";
+      if (barI) barI.style.width = pctL(iVal).toFixed(0) + "%";
+      if (barP) barP.style.width = pctP(peak).toFixed(0) + "%";
+      if (lblM) lblM.textContent = m.toFixed(1) + " LUFS";
+      if (lblS) lblS.textContent = s.toFixed(1) + " LUFS";
+      if (lblI) lblI.textContent = iVal.toFixed(1) + " LUFS";
+      if (lblP) lblP.textContent = peak.toFixed(1) + " dBTP";
+      // shift history (momentary)
       for (var i = 0; i < bars2.length - 1; i++) { bars2[i].style.height = bars2[i + 1].style.height || "20%"; }
-      bars2[bars2.length - 1].style.height = (lvl * 100).toFixed(0) + "%";
+      bars2[bars2.length - 1].style.height = pctL(m).toFixed(0) + "%";
     }, 110);
   }
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Audio Spectrum Pro — measurement suite for live sound engineers</title>
-<meta name="description" content="A full audio measurement suite on your iPhone: spectrum analyzer, chromatic tuner, oscilloscope, loudness meter, test-signal generator and RT60 reverberation analysis. Built for the stage." />
+<meta name="description" content="A full audio measurement suite on your iPhone: spectrum analyzer, YIN chromatic tuner, oscilloscope, LUFS loudness metering (ITU-R BS.1770), test-signal generator and octave-band RT60 reverberation analysis. Built for the stage." />
 <meta name="theme-color" content="#000000" />
 <link rel="canonical" href="https://audiospectrum.croscor.com/" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
@@ -18,6 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/style.css" />
+<script defer src="https://umami.croscor.com/script.js" data-website-id="d35bdf89-edfa-47e9-8098-291993fa2cf1"></script>
 </head>
 <body>
 
@@ -48,17 +49,17 @@
         <h1>See the sound.<br /><span class="accent">Tame the room.</span></h1>
         <p class="hero-sub">A full measurement suite for live sound engineers — spectrum analyzer, chromatic tuner, oscilloscope, loudness meter, test-signal generator and RT60 reverberation analysis. One black screen, built for the stage.</p>
         <div class="cta-row" id="download">
-          <a class="badge-store" href="#" aria-label="Download on the App Store">
+          <a class="badge-store" href="https://apps.apple.com/app/id6780856025" target="_blank" rel="noopener" aria-label="Download on the App Store" data-umami-event="download-appstore">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.36 12.78c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.75 2.28-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.39 0 1.78.74 3 .72 1.24-.02 2.02-1.12 2.78-2.23.88-1.28 1.24-2.52 1.26-2.58-.03-.01-2.41-.92-2.43-3.65zM14.12 6.0c.64-.78 1.07-1.86.95-2.94-.92.04-2.04.61-2.7 1.39-.59.69-1.11 1.79-.97 2.85 1.03.08 2.08-.52 2.72-1.3z"/></svg>
-            <span><span class="bs-small">Coming soon to the</span><br /><span class="bs-big">App&nbsp;Store</span></span>
+            <span><span class="bs-small">Download on the</span><br /><span class="bs-big">App&nbsp;Store</span></span>
           </a>
-          <span class="badge-note">Launching on iOS 16.2+ · iPhone &amp; iPad</span>
+          <span class="badge-note">On the App Store · iOS 16.2+ · iPhone &amp; iPad</span>
         </div>
         <div class="hero-stats">
           <div class="st"><b class="g">6</b><span>instruments</span></div>
           <div class="st"><b class="c">50 Hz–16 kHz</b><span>real-time FFT</span></div>
-          <div class="st"><b class="a">±0.01¢</b><span>tuner precision</span></div>
-          <div class="st"><b>RT60 · T20</b><span>room acoustics</span></div>
+          <div class="st"><b class="a">LUFS</b><span>BS.1770 metering</span></div>
+          <div class="st"><b>RT60</b><span>octave bands</span></div>
         </div>
       </div>
       <div class="hero-device reveal in">
@@ -96,10 +97,10 @@
       <div class="feature-text">
         <span class="kicker">01 · Spectrum analyzer</span>
         <h3>Find the problem frequency before it finds you.</h3>
-        <p>Real-time spectrum from 50&nbsp;Hz to 16&nbsp;kHz on a logarithmic scale. Automatic peak detection highlights trouble instantly, and the EQ&nbsp;Suggestions panel tells you which band to cut — and by how many dB — before feedback ever happens.</p>
+        <p>Real-time spectrum from 50&nbsp;Hz to 16&nbsp;kHz on a logarithmic scale. Automatic peak detection highlights trouble instantly, and the EQ&nbsp;Suggestions panel tells you which band to cut — and by how many dB — before feedback ever happens. Tap HOLD to freeze the peak trace and catch resonances that only flash for a moment.</p>
         <ul class="spec-list">
           <li><b>50 Hz – 16 kHz</b> logarithmic, real-time FFT</li>
-          <li><b>Auto peak detection</b> with frequency readout</li>
+          <li><b>Auto peak detection</b> + peak-hold trace</li>
           <li><b>EQ Suggestions</b> — band &amp; cut in decibels</li>
         </ul>
       </div>
@@ -110,10 +111,10 @@
     <div class="feature c reveal">
       <div class="feature-text">
         <span class="kicker cyan">02 · Chromatic tuner</span>
-        <h3>Hundredths-of-a-cent pitch, for any instrument.</h3>
-        <p>High-precision detection with a clean in-tune indicator. Presets for guitar, bass, violin, viola, cello, ukulele, mandolin, banjo and a full chromatic mode — plus adjustable A4 reference, capo support and a noise gate that rejects bleed from the PA.</p>
+        <h3>Locks onto the fundamental — even on a low B.</h3>
+        <p>A time-domain YIN detection engine tracks pitch where FFT tuners jump an octave, so bass and low guitar strings read true instead of snapping to a harmonic. Presets for guitar, bass, violin, viola, cello, ukulele, mandolin, banjo and a full chromatic mode — plus adjustable A4 reference, capo support and a noise gate that rejects bleed from the PA.</p>
         <ul class="spec-list">
-          <li><b>±0.01 cent</b> pitch resolution</li>
+          <li><b>YIN engine</b> — no octave errors on low strings</li>
           <li><b>9 instrument presets</b> + chromatic</li>
           <li><b>Adjustable A4</b>, capo &amp; noise gate</li>
         </ul>
@@ -140,26 +141,34 @@
     <div class="feature a reveal">
       <div class="feature-text">
         <span class="kicker amber">04 · Loudness meter</span>
-        <h3>RMS and true-peak, side by side.</h3>
-        <p>Simultaneous RMS and true-peak readout with a scrolling history graph. Watch your average level and catch peak spikes before they slam your limiters — 120 frames of history keep the trend in view.</p>
+        <h3>Broadcast-standard LUFS, not just a level bar.</h3>
+        <p>Momentary, short-term and gated integrated loudness to ITU-R&nbsp;BS.1770 — the same LUFS scale streaming and broadcast are graded on — alongside an oversampled True&nbsp;Peak in dBTP that catches inter-sample peaks a plain sample meter misses. A scrolling history keeps the trend in view.</p>
         <ul class="spec-list">
-          <li><b>RMS + true peak</b> simultaneously</li>
-          <li><b>120-frame</b> scrolling history</li>
-          <li><b>Limiter-safe</b> spike awareness</li>
+          <li><b>LUFS M / S / I</b> — ITU-R BS.1770 K-weighted</li>
+          <li><b>True Peak (dBTP)</b> — 4× oversampled</li>
+          <li><b>Scrolling history</b> of momentary loudness</li>
         </ul>
       </div>
       <div class="feature-media">
         <div class="meter-card" id="loudMeter">
           <div class="meter-inner">
             <div class="meter-row">
-              <div class="lbl mono"><span>RMS</span><b data-rms>−12.0 dB</b></div>
-              <div class="bar-track"><div class="bar-fill rms"></div></div>
+              <div class="lbl mono"><span>MOMENTARY</span><b data-m>−18.0 LUFS</b></div>
+              <div class="bar-track"><div class="bar-fill m"></div></div>
             </div>
             <div class="meter-row">
-              <div class="lbl mono"><span>TRUE PEAK</span><b data-peak>−3.0 dB</b></div>
+              <div class="lbl mono"><span>SHORT-TERM</span><b data-s>−20.0 LUFS</b></div>
+              <div class="bar-track"><div class="bar-fill s"></div></div>
+            </div>
+            <div class="meter-row">
+              <div class="lbl mono"><span>INTEGRATED</span><b data-i>−23.0 LUFS</b></div>
+              <div class="bar-track"><div class="bar-fill i"></div></div>
+            </div>
+            <div class="meter-row">
+              <div class="lbl mono"><span>TRUE PEAK</span><b data-peak>−1.0 dBTP</b></div>
               <div class="bar-track"><div class="bar-fill peak"></div></div>
             </div>
-            <div class="lbl mono" style="margin-top:6px"><span>HISTORY</span><span>120 f</span></div>
+            <div class="lbl mono" style="margin-top:6px"><span>HISTORY</span><span>M · LUFS</span></div>
             <div class="history"></div>
           </div>
         </div>
@@ -186,10 +195,10 @@
       <div class="feature-text">
         <span class="kicker red">06 · RT60 reverberation</span>
         <h3>Size up a room's acoustics in seconds.</h3>
-        <p>Tap start, make an impulse — a clap, a click, or a sine sweep — and the app records the decay, computes T20 and extrapolates RT60. Know instantly whether the room is working for you or against you.</p>
+        <p>Tap start, make an impulse — a clap, a click, or a sine sweep — and the app records the decay, computes T20 and extrapolates RT60. A per-octave breakdown from 250&nbsp;Hz to 4&nbsp;kHz shows how the room behaves band by band, the way acousticians actually report it.</p>
         <ul class="spec-list">
           <li><b>Impulse capture</b> — clap, click or sweep</li>
-          <li><b>T20 → RT60</b> extrapolation</li>
+          <li><b>Octave bands</b> 250 Hz – 4 kHz + broadband</li>
           <li><b>Plain-language</b> verdict (dry → reverberant)</li>
         </ul>
       </div>
@@ -226,6 +235,16 @@
         <h4>Three languages</h4>
         <p>English, Russian and Ukrainian interface, switchable on the fly.</p>
       </div>
+      <div class="field-cell">
+        <span class="ic">Share</span>
+        <h4>Share any reading</h4>
+        <p>Export the current screen as an image — hand a client the spectrum or hand a bandmate the RT60, straight from the share sheet.</p>
+      </div>
+      <div class="field-cell">
+        <span class="ic">Awake</span>
+        <h4>Stays awake</h4>
+        <p>The screen never sleeps mid-measurement, so a long RT60 capture or loudness watch runs uninterrupted.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -237,9 +256,9 @@
     <h2>The measurement rack that fits in a pocket.</h2>
     <p>No subscriptions, no accounts, no audio leaving your device. Just the instruments — ready when the room is.</p>
     <div class="cta-row" style="justify-content:center">
-      <a class="badge-store" href="#" aria-label="Download on the App Store">
+      <a class="badge-store" href="https://apps.apple.com/app/id6780856025" target="_blank" rel="noopener" aria-label="Download on the App Store" data-umami-event="download-appstore">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.36 12.78c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.75 2.28-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.39 0 1.78.74 3 .72 1.24-.02 2.02-1.12 2.78-2.23.88-1.28 1.24-2.52 1.26-2.58-.03-.01-2.41-.92-2.43-3.65zM14.12 6.0c.64-.78 1.07-1.86.95-2.94-.92.04-2.04.61-2.7 1.39-.59.69-1.11 1.79-.97 2.85 1.03.08 2.08-.52 2.72-1.3z"/></svg>
-        <span><span class="bs-small">Coming soon to the</span><br /><span class="bs-big">App&nbsp;Store</span></span>
+        <span><span class="bs-small">Download on the</span><br /><span class="bs-big">App&nbsp;Store</span></span>
       </a>
     </div>
   </div>
