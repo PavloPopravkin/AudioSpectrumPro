@@ -16,11 +16,11 @@
 - **Мелочь:** `AudioEngine` использует deprecated `requestRecordPermission` (iOS 17+ → `AVAudioApplication`) - только варнинг.
 - **Источник:** аудит 2026-07-03 (сессия). Спектрограф (#9 из аудита) уже убран ранее по просьбе Pavel.
 
-## 🟡 v1.2 в работе: при сабмите обновить App Store privacy-label + policy под аналитику
-- **Что:** in-app аналитика (Umami, анонимная) уже в коде (коммит `953307d`) + пакет баг/UX-фиксов из аудита (`3d5fa98`: краш осциллоскопа, обработка прерываний/маршрута/фона аудио, гонка start/stop, LUFS по un-gained, слышимость генератора на silent, deep-link в Настройки, локализация ошибки RT60, a11y метров). Всё собрано, НЕ выкатано - ждём аппрув 1.1. При сабмите 1.2 ОБЯЗАТЕЛЬНО: (1) в App Store Connect сменить privacy-декларацию с "Data Not Collected" на collecting **Usage Data (анонимно, Not Linked to You)**; (2) переписать app-секцию privacy-политики (`AppStore/site/privacy.html` ×3 языка) - сейчас там "no analytics, работает офлайн, ничего не отправляет", что после 1.2 станет неверным для App (сайтовую секцию "Website analytics" не трогать). Задеплоить обновлённую policy СИНХРОННО с релизом 1.2, не раньше (иначе policy опережает бинарник). whatsNew 1.2 - упомянуть анонимную статистику + opt-out.
-- **Почему отложено:** 1.1 на ревью, не фолдим (см. DECISIONS 2026-07-03).
-- **Риск если не сделать:** реджект за mismatch privacy-декларации ↔ фактическое поведение.
-- **Источник:** сессия 2026-07-03, [[appstore-publishing]]
+## 🔴 v1.2 подана НЕ до конца: ждёт ручного App Privacy label (web-UI) → потом submit
+- **Что:** v1.1 УЖЕ live (одобрена+зарелизена 2026-07-03 13:47). v1.2 (build 3) залита, прикреплена к версии `cff0a975-80ec-420a-a8c8-89b3d3aab8b9`, whatsNew ×3 + review-notes проставлены, releaseType=AFTER_APPROVAL (авто-релиз), policy обновлена+задеплоена (раскрывает анонимную аналитику ×3 языка, app-секцию переписал; "Website analytics" не трогал). **Осталось 2 шага:** (1) Pavel в ASC → App Privacy: "Data Not Collected" → Usage Data ▸ Product Interaction, purpose=Analytics, Not Linked, Not used for tracking, Publish; (2) submit: `python3 <scratchpad>/asc_v12_submit.py` (или Submit в UI). **App Privacy через API НЕДОСТУПЕН** (404 на `appDataUsages`/`appDataUsagesPublishState` - web-UI-only, как создание app-record).
+- **Почему так:** v1.0/1.1 = "Data Not Collected"; v1.2 шлёт аналитику → без смены label риск реджекта за privacy-mismatch.
+- **Риск:** submit со старым label = вероятный реджект (лишний цикл).
+- **Источник:** сессия 2026-07-03, [[appstore-publishing]]. Скрипты: session scratchpad `asc_v12_submit.py` / `asc_v12.py`.
 
 ## 🧪 v1.1 отправлена на ревью БЕЗ прогона на живом устройстве
 - **Что:** v1.1 (build 2) сабмитнута 2026-07-02 (WAITING_FOR_REVIEW, releaseType=MANUAL), но человеком на iPhone не прогнана - Pavel решил заливать сразу. Пока Apple ревьюит, всё ещё стоит проверить: точность YIN на низких струнах, адекватность LUFS (сверить с референс-метром), share sheet на iPad. Реджект/регрессию можно поймать до нажатия Release (релиз ручной).
