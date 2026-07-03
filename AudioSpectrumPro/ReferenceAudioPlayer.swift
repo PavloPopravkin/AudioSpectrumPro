@@ -90,7 +90,14 @@ final class ReferenceAudioPlayer: ObservableObject {
     func play(frequency: Float, duration: Double = 2.5) {
         // Re-activate the session — it may have been deactivated when the
         // microphone engine stopped (AudioEngine.stop calls setActive(false)).
-        try? AVAudioSession.sharedInstance().setActive(true)
+        // Fall back to a .playback category so the tone is audible even before
+        // the mic has ever run (default .soloAmbient obeys the silent switch);
+        // don't disturb a live .playAndRecord capture.
+        let session = AVAudioSession.sharedInstance()
+        if session.category != .playAndRecord {
+            try? session.setCategory(.playback)
+        }
+        try? session.setActive(true)
 
         // Restart the engine if it died (session deactivated, config change, etc.)
         if !engine.isRunning { setupEngine() }

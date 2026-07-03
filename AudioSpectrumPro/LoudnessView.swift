@@ -162,5 +162,10 @@ struct LevelMeterView: View {
                 .font(.system(size: 11, weight: .regular, design: .monospaced))
                 .foregroundStyle(Color.white.opacity(0.5))
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue(valueDB > minDB
+                            ? "\(String(format: "%.1f", valueDB)) \(unit)"
+                            : "silent")
     }
 }

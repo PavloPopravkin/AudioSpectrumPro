@@ -12,6 +12,7 @@ struct L10n {
     let stopAnalysis:       String  // accessibility label
     let errorTitle:         String
     let errorOK:            String
+    let openSettings:       String
     let language:           String
     let microphoneError:    String
     let shareSnapshot:      String  // accessibility label
@@ -79,6 +80,7 @@ struct L10n {
     let rt60Recording:          String
     let rt60Analyzing:          String
     let rt60Failed:             String
+    let rt60FailedDetail:       String
     let rt60NeedsMic:           String
     let rt60QualityDry:         String
     let rt60QualityGood:        String
@@ -118,6 +120,7 @@ struct L10n {
         stopAnalysis:       "Stop analysis",
         errorTitle:         "Error",
         errorOK:            "OK",
+        openSettings:       "Open Settings",
         language:           "Language",
         microphoneError:    "Microphone access denied. Allow access in Settings → Privacy.",
         shareSnapshot:      "Share screenshot",
@@ -171,6 +174,7 @@ struct L10n {
         rt60Recording:      "Recording decay…",
         rt60Analyzing:      "Analyzing…",
         rt60Failed:         "Measurement failed",
+        rt60FailedDetail:   "Decay too short. Make a louder impulse, or check room conditions.",
         rt60NeedsMic:       "Start the microphone to measure RT60",
         rt60QualityDry:     "Very dry / close-miked",
         rt60QualityGood:    "Ideal for live sound",
@@ -197,6 +201,7 @@ struct L10n {
         stopAnalysis:       "Остановить анализ",
         errorTitle:         "Ошибка",
         errorOK:            "OK",
+        openSettings:       "Открыть Настройки",
         language:           "Язык",
         microphoneError:    "Нет доступа к микрофону. Разрешите доступ в Настройках → Конфиденциальность.",
         shareSnapshot:      "Поделиться снимком",
@@ -250,6 +255,7 @@ struct L10n {
         rt60Recording:      "Запись затухания…",
         rt60Analyzing:      "Анализ…",
         rt60Failed:         "Измерение не удалось",
+        rt60FailedDetail:   "Затухание слишком короткое. Сделайте более громкий импульс или проверьте условия в помещении.",
         rt60NeedsMic:       "Запустите микрофон для измерения RT60",
         rt60QualityDry:     "Очень сухо / ближнее микрофонирование",
         rt60QualityGood:    "Идеально для живого звука",
@@ -276,6 +282,7 @@ struct L10n {
         stopAnalysis:       "Зупинити аналіз",
         errorTitle:         "Помилка",
         errorOK:            "OK",
+        openSettings:       "Відкрити Налаштування",
         language:           "Мова",
         microphoneError:    "Немає доступу до мікрофона. Дозвольте доступ у Налаштуваннях → Конфіденційність.",
         shareSnapshot:      "Поділитися знімком",
@@ -329,6 +336,7 @@ struct L10n {
         rt60Recording:      "Запис загасання…",
         rt60Analyzing:      "Аналіз…",
         rt60Failed:         "Вимірювання не вдалось",
+        rt60FailedDetail:   "Загасання надто коротке. Зробіть гучніший імпульс або перевірте умови в приміщенні.",
         rt60NeedsMic:       "Запустіть мікрофон для вимірювання RT60",
         rt60QualityDry:     "Дуже сухо / ближнє мікрофонування",
         rt60QualityGood:    "Ідеально для живого звуку",

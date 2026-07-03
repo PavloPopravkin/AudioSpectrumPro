@@ -28,6 +28,8 @@ struct PeakDetector {
         // Only look at bins within our display range (50 Hz – 16 kHz)
         let startBin = max(Int(FFTProcessor.minFrequency / freqPerBin), localWindowBins)
         let endBin = min(Int(FFTProcessor.maxFrequency / freqPerBin), halfN - localWindowBins - 1)
+        // Guard the closed range below against a short/degenerate FFT buffer.
+        guard startBin <= endBin else { return [] }
 
         var peaks: [FrequencyPeak] = []
 

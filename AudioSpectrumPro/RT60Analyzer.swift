@@ -37,13 +37,17 @@ struct RT60Result: Sendable {
 
 // MARK: - State
 
+enum RT60Failure: Sendable {
+    case decayTooShort
+}
+
 enum RT60State {
     case idle
     case waitingForImpulse
     case recording(elapsed: Double)
     case analyzing
     case done(RT60Result)
-    case failed(String)
+    case failed(RT60Failure)
 }
 
 // MARK: - Analyzer
@@ -119,7 +123,7 @@ final class RT60Analyzer: ObservableObject {
                 if result.isValid {
                     self.state = .done(result)
                 } else {
-                    self.state = .failed("Decay too short — make a louder impulse or check room conditions.")
+                    self.state = .failed(.decayTooShort)
                 }
             }
         }

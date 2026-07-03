@@ -12,6 +12,7 @@ struct ContentView: View {
     @StateObject private var viewModel: SpectrumViewModel
     @EnvironmentObject private var langManager: LanguageManager
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showingLanguagePicker = false
     @State private var displayMode: DisplayMode = .spectrum
     /// Sensitivity as it was before auto-boosting for the tuner, restored on exit.
@@ -35,7 +36,15 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
         .alert(langManager.l10n.errorTitle,
                isPresented: .constant(viewModel.error != nil)) {
-            Button(langManager.l10n.errorOK) { viewModel.error = nil }
+            if case .microphonePermission = viewModel.error {
+                Button(langManager.l10n.openSettings) {
+                    viewModel.error = nil
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            }
+            Button(langManager.l10n.errorOK, role: .cancel) { viewModel.error = nil }
         } message: {
             Text(errorText)
         }
@@ -59,6 +68,12 @@ struct ContentView: View {
         }
         .onAppear {
             Analytics.shared.screen("/\(displayMode.rawValue)")
+        }
+        .onChange(of: scenePhase) { phase in
+            // Release the mic and re-enable the idle timer when backgrounded.
+            if phase == .background, viewModel.isRunning {
+                viewModel.stop()
+            }
         }
     }
 

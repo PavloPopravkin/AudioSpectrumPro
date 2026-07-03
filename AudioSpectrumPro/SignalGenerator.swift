@@ -42,6 +42,17 @@ final class SignalGenerator: ObservableObject {
         return r > 0 ? r : 44100
     }
 
+    /// Ensure test signals are audible even on a fresh launch: without a category
+    /// the session defaults to `.soloAmbient`, which the ring/silent switch mutes.
+    /// Leave a live mic session (`.playAndRecord`) untouched so capture keeps working.
+    private func activatePlaybackSession() {
+        let session = AVAudioSession.sharedInstance()
+        if session.category != .playAndRecord {
+            try? session.setCategory(.playback)
+        }
+        try? session.setActive(true)
+    }
+
     private func setupEngine() {
         if engine.isRunning { engine.stop() }
         engine     = AVAudioEngine()
@@ -77,7 +88,7 @@ final class SignalGenerator: ObservableObject {
     func togglePlayback() { isPlaying ? stopPlayback() : startPlayback() }
 
     func startPlayback() {
-        try? AVAudioSession.sharedInstance().setActive(true)
+        activatePlaybackSession()
         if !engine.isRunning { setupEngine() }
         guard engine.isRunning else { return }
         playerNode.stop()

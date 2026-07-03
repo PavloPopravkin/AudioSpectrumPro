@@ -36,8 +36,8 @@ struct RT60View: View {
             analyzingView
         case .done(let result):
             resultView(result)
-        case .failed(let msg):
-            failedView(message: msg)
+        case .failed(let reason):
+            failedView(reason: reason)
         }
     }
 
@@ -228,7 +228,7 @@ struct RT60View: View {
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 
-    private func failedView(message: String) -> some View {
+    private func failedView(reason: RT60Failure) -> some View {
         VStack(spacing: 14) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 40))
@@ -236,11 +236,17 @@ struct RT60View: View {
             Text(langManager.l10n.rt60Failed)
                 .font(.system(size: 14, weight: .medium, design: .monospaced))
                 .foregroundStyle(Color.orange.opacity(0.8))
-            Text(message)
+            Text(failureDetail(reason))
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(Color.white.opacity(0.35))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
+        }
+    }
+
+    private func failureDetail(_ reason: RT60Failure) -> String {
+        switch reason {
+        case .decayTooShort: return langManager.l10n.rt60FailedDetail
         }
     }
 

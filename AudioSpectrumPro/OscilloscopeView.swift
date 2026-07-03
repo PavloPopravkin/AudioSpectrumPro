@@ -8,7 +8,9 @@ struct OscilloscopeView: View {
 
     var body: some View {
         Canvas { context, size in
-            guard samples.count > 1 else { return }
+            // Guard against a collapsed/sub-1pt canvas during tab transitions —
+            // a zero width would trap the integer division below.
+            guard samples.count > 1, size.width >= 1 else { return }
 
             let midY   = size.height / 2
             let scaleY = size.height * 0.45   // 90% of half-height for signal
@@ -29,7 +31,7 @@ struct OscilloscopeView: View {
             }
 
             // Waveform path — downsample to fit width
-            let step = max(1, samples.count / Int(size.width))
+            let step = max(1, samples.count / max(1, Int(size.width)))
             var waveform = Path()
             var first = true
 

@@ -58,6 +58,74 @@ final class SpectrumViewModel: ObservableObject {
     /// RT60 reverberation time analyzer — fed live samples every audio frame.
     let rt60Analyzer = RT60Analyzer()
 
+    /// True while an audio-session interruption paused a running capture, so we
+    /// know to resume once it ends.
+    private var resumeAfterInterruption = false
+
+    // MARK: - Lifecycle
+
+    init() {
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(handleInterruption(_:)),
+                       name: AVAudioSession.interruptionNotification, object: nil)
+        nc.addObserver(self, selector: #selector(handleRouteChange(_:)),
+                       name: AVAudioSession.routeChangeNotification, object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    // MARK: - Audio-session interruptions & route changes
+
+    /// Phone calls, Siri, alarms, backgrounding. Pause a running capture on
+    /// `.began` (releases the mic, re-enables the idle timer), auto-resume on
+    /// `.ended` when the system allows it and the app is foregrounded.
+    @objc private nonisolated func handleInterruption(_ n: Notification) {
+        guard let info = n.userInfo,
+              let raw  = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: raw) else { return }
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            switch type {
+            case .began:
+                if self.isRunning {
+                    self.resumeAfterInterruption = true
+                    self.stop()
+                }
+            case .ended:
+                let shouldResume = (info[AVAudioSessionInterruptionOptionKey] as? UInt)
+                    .map { AVAudioSession.InterruptionOptions(rawValue: $0).contains(.shouldResume) } ?? false
+                let wasPaused = self.resumeAfterInterruption
+                self.resumeAfterInterruption = false
+                if wasPaused, shouldResume,
+                   UIApplication.shared.applicationState == .active {
+                    self.start()
+                }
+            @unknown default:
+                break
+            }
+        }
+    }
+
+    /// Restart only when a device we were using is removed (headphones/Bluetooth
+    /// unplugged): the hardware sample rate can change and the tap can drop.
+    /// `.oldDeviceUnavailable` is never posted by our own session activation, so
+    /// this can't loop; a full restart rebuilds capture + DSP at the new rate.
+    @objc private nonisolated func handleRouteChange(_ n: Notification) {
+        guard let info = n.userInfo,
+              let raw  = info[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              let reason = AVAudioSession.RouteChangeReason(rawValue: raw),
+              reason == .oldDeviceUnavailable else { return }
+
+        Task { @MainActor [weak self] in
+            guard let self, self.isRunning else { return }
+            self.stop()
+            self.start()
+        }
+    }
+
     // MARK: - Start / Stop
 
     func start() {
@@ -78,6 +146,12 @@ final class SpectrumViewModel: ObservableObject {
             guard let self else { return }
             do {
                 try await self.audioEngine.start()
+                // stop() may have run during the permission/session await — bail
+                // before disabling the idle timer or spawning the processing task.
+                guard self.isRunning else {
+                    self.audioEngine.stop()
+                    return
+                }
                 self.startVolumeObservation()
 
                 // Keep the stored processor in sync with the hardware sample rate.
@@ -141,7 +215,9 @@ final class SpectrumViewModel: ObservableObject {
                     let tunerFreq = pitch.detectPitch(gained, noiseGateDB: gateDB)
                     let tuner = tunerFreq.map { TunerReading(frequency: $0, referenceA4: refA4) }
                     // BS.1770 needs every buffer for its 100 ms gating hop.
-                    loudness.process(gained)
+                    // Measure the true mic signal, NOT the display-gain-boosted
+                    // copy — the sensitivity multiplier must not inflate LUFS/dBTP.
+                    loudness.process(samples)
 
                     // ── Tuner + RT60: push every frame ───────────────────────
                     await MainActor.run { [weak self] in
