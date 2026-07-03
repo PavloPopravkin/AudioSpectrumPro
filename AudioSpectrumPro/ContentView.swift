@@ -55,6 +55,10 @@ struct ContentView: View {
                 viewModel.sensitivity = saved
                 preTunerSensitivity = nil
             }
+            Analytics.shared.screen("/\(mode.rawValue)")
+        }
+        .onAppear {
+            Analytics.shared.screen("/\(displayMode.rawValue)")
         }
     }
 
@@ -232,6 +236,7 @@ struct ContentView: View {
     private func shareSnapshot() {
         guard let image = renderSnapshot() else { return }
         shareItem = ShareImage(image: image)
+        Analytics.shared.event("share", ["mode": displayMode.rawValue])
     }
 
     /// Renders the current measurement panel into a shareable PNG card.
@@ -328,6 +333,7 @@ struct ContentView: View {
             viewModel.stop()
         } else {
             viewModel.start()
+            Analytics.shared.event("analysis_start", ["mode": displayMode.rawValue])
         }
     }
 }
@@ -399,25 +405,36 @@ struct ModeTabButton: View {
 struct LanguagePickerView: View {
     @EnvironmentObject private var langManager: LanguageManager
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(Analytics.optOutKey) private var analyticsOptOut = false
 
     var body: some View {
         NavigationView {
             List {
-                ForEach(Language.allCases) { language in
-                    Button(action: {
-                        langManager.language = language
-                        dismiss()
-                    }) {
-                        HStack {
-                            Text(language.displayName)
-                                .foregroundStyle(Color.primary)
-                            Spacer()
-                            if langManager.language == language {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentColor)
+                Section(header: Text(langManager.l10n.language)) {
+                    ForEach(Language.allCases) { language in
+                        Button(action: {
+                            langManager.language = language
+                            Analytics.shared.event("language", ["lang": language.rawValue])
+                            dismiss()
+                        }) {
+                            HStack {
+                                Text(language.displayName)
+                                    .foregroundStyle(Color.primary)
+                                Spacer()
+                                if langManager.language == language {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(Color.accentColor)
+                                }
                             }
                         }
                     }
+                }
+
+                Section(footer: Text(langManager.l10n.analyticsFooter)) {
+                    Toggle(langManager.l10n.analyticsShare, isOn: Binding(
+                        get: { !analyticsOptOut },
+                        set: { analyticsOptOut = !$0 }
+                    ))
                 }
             }
             .navigationTitle(langManager.l10n.language)

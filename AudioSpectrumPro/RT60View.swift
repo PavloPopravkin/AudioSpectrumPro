@@ -266,6 +266,7 @@ struct RT60View: View {
     private var startButton: some View {
         Button {
             analyzer.startMeasurement()
+            Analytics.shared.event("rt60_measure")
         } label: {
             VStack(spacing: 6) {
                 ZStack {

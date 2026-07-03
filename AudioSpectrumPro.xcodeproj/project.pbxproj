@@ -38,6 +38,7 @@
 		ED50284A2F8B100000A843D9 /* RT60View.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED50284B2F8B100000A843D9 /* RT60View.swift */; };
 		ED50FADE000000000000B001 /* PitchDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED50FADE000000000000A001 /* PitchDetector.swift */; };
 		ED50FADE000000000000B002 /* LoudnessProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED50FADE000000000000A002 /* LoudnessProcessor.swift */; };
+		ED50FADE000000000000B003 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED50FADE000000000000A003 /* Analytics.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		ED50281A2F8AC1DE00A843D9 /* AudioEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioEngine.swift; sourceTree = "<group>"; };
 		ED50FADE000000000000A001 /* PitchDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PitchDetector.swift; sourceTree = "<group>"; };
 		ED50FADE000000000000A002 /* LoudnessProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoudnessProcessor.swift; sourceTree = "<group>"; };
+		ED50FADE000000000000A003 /* Analytics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		ED50281B2F8AC1DE00A843D9 /* FrequencyPeak.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FrequencyPeak.swift; sourceTree = "<group>"; };
 		ED50281C2F8AC1DE00A843D9 /* FFTProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FFTProcessor.swift; sourceTree = "<group>"; };
 		ED50282F2F8AC3DA00A843D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 				ED50281A2F8AC1DE00A843D9 /* AudioEngine.swift */,
 				ED50FADE000000000000A001 /* PitchDetector.swift */,
 				ED50FADE000000000000A002 /* LoudnessProcessor.swift */,
+				ED50FADE000000000000A003 /* Analytics.swift */,
 				ED5028162F8AC1DE00A843D9 /* EQRecommendation.swift */,
 				ED50281C2F8AC1DE00A843D9 /* FFTProcessor.swift */,
 				ED5028382F8AD17C00A843D9 /* DisplayMode.swift */,
@@ -338,6 +341,7 @@
 				ED5028272F8AC36C00A843D9 /* AudioEngine.swift in Sources */,
 				ED50FADE000000000000B001 /* PitchDetector.swift in Sources */,
 				ED50FADE000000000000B002 /* LoudnessProcessor.swift in Sources */,
+				ED50FADE000000000000B003 /* Analytics.swift in Sources */,
 				ED50282E2F8AC36C00A843D9 /* EQRecommendation.swift in Sources */,
 				ED5028412F8AD35B00A843D9 /* TunerInstrument.swift in Sources */,
 				ED5028432F8AD35B00A843D9 /* ReferenceAudioPlayer.swift in Sources */,

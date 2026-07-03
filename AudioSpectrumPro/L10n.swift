@@ -16,6 +16,8 @@ struct L10n {
     let microphoneError:    String
     let shareSnapshot:      String  // accessibility label
     let peakHold:           String  // accessibility label
+    let analyticsShare:     String
+    let analyticsFooter:    String
 
     // MARK: - Display modes
     let modeSpectrum:       String
@@ -120,6 +122,8 @@ struct L10n {
         microphoneError:    "Microphone access denied. Allow access in Settings → Privacy.",
         shareSnapshot:      "Share screenshot",
         peakHold:           "Peak hold",
+        analyticsShare:     "Share anonymous usage",
+        analyticsFooter:    "Sends anonymous, aggregate feature usage to help improve the app. No personal data, no audio, no tracking. Turn off anytime.",
         modeSpectrum:       "Spectrum",
         modeSpectrograph:   "Spectrograph",
         modeTuner:          "Tuner",
@@ -197,6 +201,8 @@ struct L10n {
         microphoneError:    "Нет доступа к микрофону. Разрешите доступ в Настройках → Конфиденциальность.",
         shareSnapshot:      "Поделиться снимком",
         peakHold:           "Удержание пиков",
+        analyticsShare:     "Анонимная статистика",
+        analyticsFooter:    "Отправляет анонимные обобщённые данные об использовании функций, чтобы улучшать приложение. Без персональных данных, без звука, без слежки. Можно отключить в любой момент.",
         modeSpectrum:       "Спектр",
         modeSpectrograph:   "Спектрограф",
         modeTuner:          "Тюнер",
@@ -274,6 +280,8 @@ struct L10n {
         microphoneError:    "Немає доступу до мікрофона. Дозвольте доступ у Налаштуваннях → Конфіденційність.",
         shareSnapshot:      "Поділитися знімком",
         peakHold:           "Утримання піків",
+        analyticsShare:     "Анонімна статистика",
+        analyticsFooter:    "Надсилає анонімні узагальнені дані про використання функцій, щоб покращувати застосунок. Без персональних даних, без звуку, без стеження. Можна вимкнути будь-коли.",
         modeSpectrum:       "Спектр",
         modeSpectrograph:   "Спектрограф",
         modeTuner:          "Тюнер",

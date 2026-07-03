@@ -167,7 +167,12 @@ struct SignalGeneratorView: View {
     // MARK: - Play button
 
     private var playButton: some View {
-        Button(action: { generator.togglePlayback() }) {
+        Button(action: {
+            if !generator.isPlaying {
+                Analytics.shared.event("generator_play", ["signal": generator.signalType.rawValue])
+            }
+            generator.togglePlayback()
+        }) {
             VStack(spacing: 6) {
                 ZStack {
                     Circle()
