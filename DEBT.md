@@ -16,11 +16,11 @@
 - **Мелочь:** `AudioEngine` использует deprecated `requestRecordPermission` (iOS 17+ → `AVAudioApplication`) - только варнинг.
 - **Источник:** аудит 2026-07-03 (сессия). Спектрограф (#9 из аудита) уже убран ранее по просьбе Pavel.
 
-## 🔴 v1.2 подана НЕ до конца: ждёт ручного App Privacy label (web-UI) → потом submit
-- **Что:** v1.1 УЖЕ live (одобрена+зарелизена 2026-07-03 13:47). v1.2 (build 3) залита, прикреплена к версии `cff0a975-80ec-420a-a8c8-89b3d3aab8b9`, whatsNew ×3 + review-notes проставлены, releaseType=AFTER_APPROVAL (авто-релиз), policy обновлена+задеплоена (раскрывает анонимную аналитику ×3 языка, app-секцию переписал; "Website analytics" не трогал). **Осталось 2 шага:** (1) Pavel в ASC → App Privacy: "Data Not Collected" → Usage Data ▸ Product Interaction, purpose=Analytics, Not Linked, Not used for tracking, Publish; (2) submit: `python3 <scratchpad>/asc_v12_submit.py` (или Submit в UI). **App Privacy через API НЕДОСТУПЕН** (404 на `appDataUsages`/`appDataUsagesPublishState` - web-UI-only, как создание app-record).
-- **Почему так:** v1.0/1.1 = "Data Not Collected"; v1.2 шлёт аналитику → без смены label риск реджекта за privacy-mismatch.
-- **Риск:** submit со старым label = вероятный реджект (лишний цикл).
-- **Источник:** сессия 2026-07-03, [[appstore-publishing]]. Скрипты: session scratchpad `asc_v12_submit.py` / `asc_v12.py`.
+## 🧪 v1.2 на ревью Apple (WAITING_FOR_REVIEW, авто-релиз) — ждём вердикт
+- **Что:** v1.2 (build 3) подана 2026-07-03, `WAITING_FOR_REVIEW`, releaseType=AFTER_APPROVAL (выйдет сама после аппрува). App Privacy label обновлён Pavel'ем вручную в web-UI (Usage Data ▸ Product Interaction / Analytics / Not Linked / No Tracking) - submit прошёл 200, значит Apple label принял. Содержимое: анонимная Umami-аналитика (opt-out) + баг/UX-фиксы из аудита. Policy live раскрывает аналитику ×3 языка. Прогнан папой на живом iPhone.
+- **Осталось:** дождаться вердикта Apple. Если реджект - смотреть причину (аналитика/privacy - самый вероятный угол). Проверка стейта: `python3 <scratchpad>/asc_v12.py`.
+- **Урок:** App Privacy nutrition label = web-UI-only (API 404), закладывать ручной шаг Pavel'я в любой релиз, добавляющий/меняющий сбор данных.
+- **Источник:** сессия 2026-07-03, [[appstore-publishing]].
 
 ## 🧪 v1.1 отправлена на ревью БЕЗ прогона на живом устройстве
 - **Что:** v1.1 (build 2) сабмитнута 2026-07-02 (WAITING_FOR_REVIEW, releaseType=MANUAL), но человеком на iPhone не прогнана - Pavel решил заливать сразу. Пока Apple ревьюит, всё ещё стоит проверить: точность YIN на низких струнах, адекватность LUFS (сверить с референс-метром), share sheet на iPad. Реджект/регрессию можно поймать до нажатия Release (релиз ручной).
