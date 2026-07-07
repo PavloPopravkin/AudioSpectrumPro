@@ -6,6 +6,13 @@
 
 ---
 
+## 🟡 v1.3: +20 языков UI + локализация листинга (staged, upload ПОСЛЕ аппрува v1.2)
+- **Что сделано:** в код добавлены 20 языков интерфейса (было en/ru/uk → стало 23): `Language.swift` + `L10n.swift`, build под iPhone 17 sim зелёный (`** BUILD SUCCEEDED **`). Локализованный листинг App Store (subtitle/keywords/promo/description/whatsNew) на все 20 локалей заготовлен в `AppStore/metadata.md` (секция "New localizations (v1.3)" + таблица ASC-кодов). В ASC НИЧЕГО не залито.
+- **Осталось:** (1) дождаться вердикта по v1.2; (2) бампнуть до 1.3 (build 4), собрать/залить бинарь (CLI-пайплайн, [[appstore-publishing]]); (3) залить 20 локалей листинга в ASC под их locale-кодами (appStoreVersionLocalizations: description/keywords/promotionalText/whatsNew; appInfoLocalizations: subtitle; App Name = "Audio Spectrum Pro: Analyzer" для всех локалей); whatsNew(1.3) для en/uk/ru тоже готов в metadata.md.
+- **Почему сейчас нельзя:** v1.2 в ревью; добавлять version-локали к версии в ревью нельзя, и локали рекламировали бы языки, которых нет в поданном v1.2-бинаре.
+- **Готчи:** нельзя держать 2 версии в ревью одновременно — v1.3 сабмитить только после вердикта по v1.2. App Privacy label менять НЕ нужно (сбор данных не изменился). RTL-языки (арабский/иврит) осознанно НЕ включены — нужна работа с layoutDirection (см. DECISIONS 2026-07-07).
+- **Источник:** сессия 2026-07-07, DECISIONS 2026-07-07, [[appstore-publishing]].
+
 > ✅ Закрыто 2026-06-21: реджект 2.1 пройден (переподача 06-19, демо-видео сработало); версия 1.0 одобрена и **зарелизена автоматически** (`releaseType` оказался `AFTER_APPROVAL`, не MANUAL - ручной Release не понадобился); ASC: `READY_FOR_SALE` / `downloadable=true`. Вердикт Apple получен - пункт «сабмишн человеком не проверен» тоже снят. Детали → [[appstore-publishing]].
 
 ## 🟢 Отложенные пункты аудита приложения (не вошли в 1.2, кандидаты дальше)
